@@ -7,6 +7,9 @@
 19/10/2024:
 
 + Decided that my mobile app will be built for both Android and iOS using Flutter. 
++ Successfully setup the flutter project folder. 
++ Successfully setup the flutter development environment on Android studio. 
++ Successfully setup firebase for my project. 
 
 
 
