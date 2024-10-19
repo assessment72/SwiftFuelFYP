@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "170107635354",
+    "project_id": "mobile-app-35e28",
+    "storage_bucket": "mobile-app-35e28.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170107635354:android:36230a70a3fd757f540123",
+        "android_client_info": {
+          "package_name": "com.fahad.fueldeliveryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC__VHV_bobM984ybo-cMn4ex4WsVM5Iu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
