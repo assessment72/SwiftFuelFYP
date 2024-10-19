@@ -4,5 +4,9 @@
 + Decided to build mobile app for Android. 
 + Decided that my app would be a "Fuel Delivery App".
 
+19/10/2024:
+
++ Decided that my mobile app will be built for both Android and iOS using Flutter. 
+
 
 
