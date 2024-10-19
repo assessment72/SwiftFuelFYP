@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.fahad.fueldeliveryapp">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="fuel_delivery_app"
         android:name="${applicationName}"

@@ -1,4 +1,4 @@
-package com.example.fuel_delivery_app
+package com.fahad.fueldeliveryapp
 
 import io.flutter.embedding.android.FlutterActivity
 
