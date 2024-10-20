@@ -11,5 +11,9 @@
 + Successfully setup the flutter development environment on Android studio. 
 + Successfully setup firebase for my project. 
 
+20/10/2024:
+
++ Developed a simple "Hello World" screen for my app for learning purposes. 
+
 
 
