@@ -15,5 +15,11 @@
 
 + Developed a simple "Hello World" screen for my app for learning purposes. 
 
+21/10/2024:
+
++ Using figma software, I created a low fidelity storyboard design for my user interface showcasing roughly how the UI will look, the user flow and journey, and the interactions between the users and different screens.
+
+ 
+
 
 
