@@ -19,7 +19,10 @@
 
 + Using figma software, I created a low fidelity storyboard design for my user interface showcasing roughly how the UI will look, the user flow and journey, and the interactions between the users and different screens.
 
- 
+24/10/2024:
+
++ Implemented the firebase authentication handling service which will handle the login and registration process/screens for the users.
++ Updated the firebase dependencies to better and newer versions.  
 
 
 
