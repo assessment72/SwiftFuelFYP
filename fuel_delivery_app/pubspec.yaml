@@ -32,7 +32,6 @@ dependencies:
     sdk: flutter
   firebase_core: ^3.2.0  # Required for using Firebase
   firebase_auth: ^5.1.2   # For user authentication
-  cloud_firestore: ^4.17.5  # For Firestore data storage (optional)
 
 
   # The following adds the Cupertino Icons font to your application.
