@@ -22,7 +22,13 @@
 24/10/2024:
 
 + Implemented the firebase authentication handling service which will handle the login and registration process/screens for the users.
-+ Updated the firebase dependencies to better and newer versions.  
++ Updated the firebase dependencies to better and newer versions. 
+
+26/10/2024:
+
++ Coded and Implemented the login and register screens with proper UI and functionality. 
++ Decided that the name of my app will be "SwiftFuel".
+ 
 
 
 
