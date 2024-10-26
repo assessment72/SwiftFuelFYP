@@ -66,31 +66,48 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 120.0, left: 250.0),
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Color(0xFF807166),
-                  foregroundColor: Color(0xFFc8c6c2),
-                  minimumSize: Size(150, 50),
-                ),
-                onPressed: () async {
-                  String email = _emailController.text.trim();
-                  String password = _passwordController.text.trim();
-                  if (email.isNotEmpty && password.isNotEmpty) {
-                    User? user = await _authService.logIn(email, password);
-                    if (user != null) {
-                      print('Login successful');
-                    } else {
-                      print('Login failed');
-                    }
-                  }
-                },
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 18,
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                    child: Text(
+                      'Dont have an account? Create here',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF807166),
+                      ),
+                    ),
                   ),
-                ),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Color(0xFF807166),
+                      foregroundColor: Color(0xFFc8c6c2),
+                      minimumSize: Size(150, 50),
+                    ),
+                    onPressed: () async {
+                      String email = _emailController.text.trim();
+                      String password = _passwordController.text.trim();
+                      if (email.isNotEmpty && password.isNotEmpty) {
+                        User? user = await _authService.logIn(email, password);
+                        if (user != null) {
+                          print('Login successful');
+                        } else {
+                          print('Login failed');
+                        }
+                      }
+                    },
+                    child: Text(
+                      'Login',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ],
