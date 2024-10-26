@@ -16,26 +16,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register'),
-      ),
-      body: Padding(
+      body: Container(
+        color: Color(0xFFc8c6c2),
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            Image.asset(
+              'assets/logo.png',
+              height: 200,
+            ),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-
+              decoration: InputDecoration(
+                  labelText: 'Email',
+                labelStyle: TextStyle(
+                  color: Color(0xFF807166),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF807166),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF807166),
+                  )
+                )
+              ),
             ),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(
+                  color: Color(0xFF807166),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFF807166),
+                  ),
+                ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF807166),
+                      )
+                  )
+              ),
               obscureText: true,
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
+            Padding(
+              padding: const EdgeInsets.only(bottom: 120.0, left: 250.0),
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Color(0xFF807166),
+                  foregroundColor: Color(0xFFc8c6c2),
+                  minimumSize: Size(150, 50),
+                ),
+                onPressed: () async {
                 String email = _emailController.text.trim();
                 String password = _passwordController.text.trim();
                 if (email.isNotEmpty && password.isNotEmpty) {
@@ -47,7 +85,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                 }
               },
-              child: Text('Register'),
+              child: Text(
+                  'Register',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+            ),
+            ),
             ),
           ],
         ),
