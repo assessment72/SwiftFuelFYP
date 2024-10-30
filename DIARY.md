@@ -28,6 +28,18 @@
 
 + Coded and Implemented the login and register screens with proper UI and functionality. 
 + Decided that the name of my app will be "SwiftFuel".
+
+30/10/2024:
+
++ Did some research and took some inspiration from some Flutter Flow templates/examples to make my UI better.
++ Coded and Implemented the home/dashboard screen with proper UI (not fully functional yet, incomplete).
++ Integrated the home screen with login and register screens. 
++ Updated the UI of the register and login screens to match the new and better UI of the home screen. 
++ Setup the firestore database on Firebase. 
++ The users now have to enter their mobile numbers as well during the registration process and the data will now be saved to the backend firestore database. 
++ Added snackbar notifications for important actions on the register, login and home screens to give user proper feedback during their app usage. 
+
+
  
 
 
