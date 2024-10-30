@@ -94,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (email.isNotEmpty && password.isNotEmpty) {
                         User? user = await _authService.logIn(email, password);
                         if (user != null) {
+                          Navigator.pushNamed(context, '/home');
                           print('Login successful');
                         } else {
                           print('Login failed');
