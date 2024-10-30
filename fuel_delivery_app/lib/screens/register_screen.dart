@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -11,7 +11,9 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
   final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                  labelText: 'Email',
+                labelText: 'Email',
                 labelStyle: TextStyle(
                   color: Colors.black,
                 ),
@@ -41,15 +43,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFE91E63),
-                  )
-                )
+                  ),
+                ),
               ),
             ),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(
+                labelText: 'Password',
+                labelStyle: TextStyle(
                   color: Colors.black,
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -57,13 +59,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: Color(0xFFE91E63),
                   ),
                 ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(0xFFE91E63),
-                      )
-                  )
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFE91E63),
+                  ),
+                ),
               ),
               obscureText: true,
+            ),
+            TextField(
+              controller: _mobileController,
+              decoration: InputDecoration(
+                labelText: 'Mobile Number',
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFE91E63),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFE91E63),
+                  ),
+                ),
+              ),
+              keyboardType: TextInputType.phone,
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -91,14 +113,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () async {
                       String email = _emailController.text.trim();
                       String password = _passwordController.text.trim();
-                      if (email.isNotEmpty && password.isNotEmpty) {
+                      String mobileNumber = _mobileController.text.trim();
+
+                      if (email.isNotEmpty && password.isNotEmpty && mobileNumber.isNotEmpty) {
                         User? user = await _authService.register(email, password);
                         if (user != null) {
+                          // Save additional data to Firestore
+                          await _firestore.collection('users').doc(user.uid).set({
+                            'email': email,
+                            'mobileNumber': mobileNumber,
+                            'createdAt': Timestamp.now(),
+                          });
+
                           Navigator.pushNamed(context, '/login');
                           print('Registration successful');
                         } else {
                           print('Registration failed');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Registration failed. Try again.')),
+                          );
                         }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please fill all fields.')),
+                        );
                       }
                     },
                     child: Text(
@@ -116,7 +154,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-
-
 }
