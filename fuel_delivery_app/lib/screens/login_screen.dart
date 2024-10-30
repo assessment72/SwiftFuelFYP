@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFFc8c6c2),
+        color: Colors.white,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -31,16 +31,16 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                   labelText: 'Email',
                   labelStyle: TextStyle(
-                    color: Color(0xFF807166),
+                    color: Colors.black,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Color(0xFF807166),
+                      color: Color(0xFFE91E63),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFF807166),
+                        color: Color(0xFFE91E63),
                       )
                   )
               ),
@@ -50,16 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(
-                    color: Color(0xFF807166),
+                    color: Colors.black,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Color(0xFF807166),
+                      color: Color(0xFFE91E63),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFF807166),
+                        color: Color(0xFFE91E63),
                       )
                   )
               ),
@@ -78,14 +78,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Dont have an account? Create here',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Color(0xFF807166),
+                        color: Colors.black,
                       ),
                     ),
                   ),
                   FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Color(0xFF807166),
-                      foregroundColor: Color(0xFFc8c6c2),
+                      backgroundColor: Color(0xFFE91E63),
+                      foregroundColor: Colors.white,
                       minimumSize: Size(150, 50),
                     ),
                     onPressed: () async {
