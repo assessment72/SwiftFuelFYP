@@ -28,6 +28,8 @@ class HomeScreen extends StatelessWidget {
             ),
             onPressed: () {
               Navigator.pushNamed(context, '/login');
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Signed out successfully')));
             },
           ),
         ],

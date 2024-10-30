@@ -96,8 +96,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (user != null) {
                           Navigator.pushNamed(context, '/home');
                           print('Login successful');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('You have successfully logged in.')));
                         } else {
                           print('Login failed');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Login failed')));
                         }
                       }
                     },
