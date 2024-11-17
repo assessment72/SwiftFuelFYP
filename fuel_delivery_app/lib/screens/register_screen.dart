@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -67,9 +69,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               obscureText: true,
             ),
-            TextField(
+            TextFormField(
               controller: _mobileController,
               decoration: InputDecoration(
+                prefixText: '+44 ',
                 labelText: 'Mobile Number',
                 labelStyle: TextStyle(
                   color: Colors.black,
@@ -86,6 +89,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               keyboardType: TextInputType.phone,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -118,10 +124,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (email.isNotEmpty && password.isNotEmpty && mobileNumber.isNotEmpty) {
                         User? user = await _authService.register(email, password);
                         if (user != null) {
+                          String fullMobileNumber = '+44 ' + mobileNumber;
                           // Save additional data to Firestore
                           await _firestore.collection('users').doc(user.uid).set({
                             'email': email,
-                            'mobileNumber': mobileNumber,
+                            'mobileNumber': fullMobileNumber,
                             'createdAt': Timestamp.now(),
                           });
 
