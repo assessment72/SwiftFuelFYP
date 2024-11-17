@@ -29,7 +29,8 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               Navigator.pushNamed(context, '/login');
               ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Signed out successfully')));
+                SnackBar(content: Text('Signed out successfully')),
+              );
             },
           ),
         ],
@@ -70,6 +71,69 @@ class HomeScreen extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 100),
+
+              // Graphical Content Container
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFDF9FB9), Color(0xFFF8D49D)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '24/7 Fuel service, at petrol station rates.',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Enjoy our contactless fuel delivery straight to your car with flexible scheduling. Easy booking, at your convenience!',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Navigate to fuel delivery
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE91E63),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 20,
+                              ),
+                            ),
+                            child: const Text(
+                              'Discover SwiftFuel',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
                   ],
                 ),
               ),
@@ -118,7 +182,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 130),
             ],
           ),
         ),
