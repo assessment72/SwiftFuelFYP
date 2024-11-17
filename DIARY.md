@@ -39,6 +39,16 @@
 + The users now have to enter their mobile numbers as well during the registration process and the data will now be saved to the backend firestore database. 
 + Added snackbar notifications for important actions on the register, login and home screens to give user proper feedback during their app usage. 
 
+17/11/2024:
+
++ Added some graphical content to the home screen.
++ Adjusted some UI components of input fields on the register and login screens.
++ Successfully setup Google Maps API and integration for my project using Google Cloud and its provided API key. (for the fuel ordering system)
++ Developed and Implemented a basic fuel ordering screen where the user can select their current location or any location by pinning on the map, select the fuel type, and enter their vehicle number plate to place a fuel order. 
++ Fixed a major error that was failing the build for the mobile app. 
+
+
+
 
  
 
