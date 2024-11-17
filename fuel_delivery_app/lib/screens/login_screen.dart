@@ -26,44 +26,62 @@ class _LoginScreenState extends State<LoginScreen> {
               'assets/logo.png',
               height: 200,
             ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(
-                    color: Colors.black,
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(50.0),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.email,
+                    color: Colors.grey,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color(0xFFE91E63),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(0xFFE91E63),
-                      )
-                  )
+                ],
               ),
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(
-                    color: Colors.black,
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(50.0),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.key,
+                    color: Colors.grey,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color(0xFFE91E63),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      obscureText: true,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(0xFFE91E63),
-                      )
-                  )
+                ],
               ),
-              obscureText: true,
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),

@@ -30,68 +30,95 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'assets/logo.png',
               height: 200,
             ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(50.0),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.email,
+                    color: Colors.grey,
                   ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
-                  ),
-                ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(50.0),
               ),
-              obscureText: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.key,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      obscureText: true,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            TextFormField(
-              controller: _mobileController,
-              decoration: InputDecoration(
-                prefixText: '+44 ',
-                labelText: 'Mobile Number',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFE91E63),
-                  ),
-                ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(50.0),
               ),
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.phone,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _mobileController,
+                      decoration: const InputDecoration(
+                        prefixText: '+44 ',
+                        labelText: 'Mobile Number',
+                        labelStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                        border: InputBorder.none, // Remove the default border
+                      ),
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
