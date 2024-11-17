@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -142,7 +143,10 @@ class HomeScreen extends StatelessWidget {
                 alignment: Alignment.bottomLeft,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to fuel order page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => FuelOrderingScreen()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF2F2F2),

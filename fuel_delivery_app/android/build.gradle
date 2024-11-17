@@ -7,6 +7,9 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.0.4'
         classpath 'com.google.gms:google-services:4.4.2'
     }
+    ext {
+        googleMapsApiKey = "AIzaSyAoAkKeq7jfY5Z8xic5KTXp_Ex30u25ijw"
+    }
 }
 
 allprojects {

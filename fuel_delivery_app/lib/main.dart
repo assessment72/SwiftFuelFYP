@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterScreen(),
         '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
+        '/orderfuel': (context) => FuelOrderingScreen(),
 
       },
     );
