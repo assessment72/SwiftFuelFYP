@@ -78,6 +78,16 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
+        leading:
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/home');
+            },
+          ),
       ),
       body: SafeArea(
         child: Padding(
