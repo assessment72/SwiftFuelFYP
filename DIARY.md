@@ -47,6 +47,17 @@
 + Developed and Implemented a basic fuel ordering screen where the user can select their current location or any location by pinning on the map, select the fuel type, and enter their vehicle number plate to place a fuel order. 
 + Fixed a major error that was failing the build for the mobile app. 
 
+02/12/2024:
+
++ Implemented a back icon button to the fuel ordering screen which takes users back to the home screen
++ Integrated the fuel ordering system with the firebase authentication system
++ Implemented an order confirmation popup for users to review their fuel order details before actually placing the order
++ Fixed some bugs
++ Started researching for the Interim Report
++ Started the actual work on the Interim Report
+
+
+
 
 
 
