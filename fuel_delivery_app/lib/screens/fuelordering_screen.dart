@@ -65,6 +65,108 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     }
   }
 
+  Future<void> _showOrderConfirmation() async {
+    if (_selectedFuelType == null || _selectedLocation == null || _vehicleNumberController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields and select location')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Your Order'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Fuel Type: $_selectedFuelType'),
+              const SizedBox(height: 10),
+              Text('Vehicle Number: ${_vehicleNumberController.text}'),
+              const SizedBox(height: 10),
+              Text('Location: (${_selectedLocation!.latitude}, ${_selectedLocation!.longitude})'),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 25.0,
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                await _placeOrder();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE91E63),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 50.0,
+                ),
+              ),
+              child: const Text(
+                'Confirm',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+
+        );
+      },
+    );
+  }
+
+  Future<void> _placeOrder() async {
+    User? user = _auth.currentUser; // Get the current user
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+
+    if (_selectedLocation != null &&
+        _selectedFuelType != null &&
+        _vehicleNumberController.text.isNotEmpty) {
+      // Save Order Details to Firestore
+      await _firestore.collection('orders').add({
+        'userId': user.uid,
+        'fuelType': _selectedFuelType,
+        'vehicleNumber': _vehicleNumberController.text,
+        'location': GeoPoint(
+            _selectedLocation!.latitude, _selectedLocation!.longitude),
+        'orderedAt': Timestamp.now(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order placed successfully')),
+      );
+      Navigator.pop(context); // Go back to home screen
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields and select location')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,39 +284,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
 
               // Submit Button
               ElevatedButton(
-                onPressed: () async {
-                  User? user = _auth.currentUser; // Get the current user
-                  if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User not logged in')),
-                    );
-                    return;
-                  }
-
-                  if (_selectedLocation != null &&
-                      _selectedFuelType != null &&
-                      _vehicleNumberController.text.isNotEmpty) {
-                    // Save Order Details to Firestore
-                    await _firestore.collection('orders').add({
-                      'userId': user.uid,
-                      'fuelType': _selectedFuelType,
-                      'vehicleNumber': _vehicleNumberController.text,
-                      'location': GeoPoint(
-                          _selectedLocation!.latitude, _selectedLocation!.longitude),
-                      'orderedAt': Timestamp.now(),
-                    });
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Order placed successfully')),
-                    );
-                    Navigator.pop(context); // Go back to home screen
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Please fill all fields and select location')),
-                    );
-                  }
-                },
+                onPressed: _showOrderConfirmation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFE91E63),
                   foregroundColor: Colors.white,
