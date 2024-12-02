@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:location/location.dart';
 
 class FuelOrderingScreen extends StatefulWidget {
@@ -10,8 +11,10 @@ class FuelOrderingScreen extends StatefulWidget {
 
 class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final TextEditingController _vehicleModelController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final TextEditingController _vehicleNumberController = TextEditingController();
+
   String? _selectedFuelType;
   LatLng? _selectedLocation;
   GoogleMapController? _mapController;
@@ -78,16 +81,15 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        leading:
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/home');
-            },
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.black,
           ),
+          onPressed: () {
+            Navigator.pushNamed(context, '/home');
+          },
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -161,7 +163,6 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
               ),
               const SizedBox(height: 20),
 
-
               // Vehicle Number Plate TextField
               Container(
                 decoration: BoxDecoration(
@@ -182,11 +183,20 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
               // Submit Button
               ElevatedButton(
                 onPressed: () async {
+                  User? user = _auth.currentUser; // Get the current user
+                  if (user == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('User not logged in')),
+                    );
+                    return;
+                  }
+
                   if (_selectedLocation != null &&
                       _selectedFuelType != null &&
                       _vehicleNumberController.text.isNotEmpty) {
                     // Save Order Details to Firestore
                     await _firestore.collection('orders').add({
+                      'userId': user.uid,
                       'fuelType': _selectedFuelType,
                       'vehicleNumber': _vehicleNumberController.text,
                       'location': GeoPoint(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -27,14 +29,28 @@ class HomeScreen extends StatelessWidget {
               Icons.logout,
               color: Colors.black,
             ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/login');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Signed out successfully')),
-              );
+            onPressed: () async {
+              try {
+                // Sign out the current user
+                await FirebaseAuth.instance.signOut();
+
+                // Show a success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Signed out successfully')),
+                );
+
+                // Navigate back to the login screen
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              } catch (e) {
+                // Handle error, show an error message if necessary
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error signing out: $e')),
+                );
+              }
             },
           ),
         ],
+
       ),
       body: SafeArea(
         child: Padding(
