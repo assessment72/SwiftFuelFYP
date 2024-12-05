@@ -56,6 +56,13 @@
 + Started researching for the Interim Report
 + Started the actual work on the Interim Report
 
+05/12/2024:
+
++ Did some major work and progress for the Interim Report.
++ Added a README file which guides the reader on how to deploy and run the app themselves. 
+
+
+
 
 
 
