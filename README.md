@@ -36,40 +36,57 @@ The Fuel Delivery Mobile App is an on-demand fuel delivery solution that allows 
 - **Google Maps API**: Real-time location tracking for delivery.
 
 ## Prerequisites
-To deploy the code, ensure you have the following:
-1. **Flutter SDK** installed - [Flutter Installation Guide](https://flutter.dev/docs/get-started/install)
-2. **Android Studio or VS Code** installed with the Flutter plugin.
-3. **Firebase Project** set up:
-   - Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/).
-   - Enable Firebase Authentication and Firestore Database.
+To deploy and run the code, ensure you have the following installed and set up on your system:
+
+1. **Flutter SDK**: You need Flutter installed on your system. Follow the official guide for installation: [Flutter Installation Guide](https://flutter.dev/docs/get-started/install).
+2. **Android Studio**: Install Android Studio with the Flutter and Dart plugins. This will be your Integrated Development Environment (IDE) to open and run the project. Make sure you also install the Android SDK components during Android Studio setup.
 
 ## Setup and Deployment Instructions
-1. **Clone the Repository**
-   ```sh
-   git clone <repository_url>
-   cd PROJECT
-   ```
 
-2. **Install Dependencies**
-   Run the following command to install the Flutter packages and dependencies:
-   ```sh
-   flutter pub get
-   ```
+1. **Open the Project in Android Studio**
+   - Download or clone the project repository to your local system:
+   - Open Android Studio and select **"Open an Existing Project"**. Browse to the `fuel_delivery_app` folder and open it.
 
+2. **Set Up an Emulator or Physical Device**
+   - In Android Studio, go to **"Device Manager"** from the top-right corner.
+   - If you don't already have an emulator set up:
+     - Click on **"Create Device"**.
+     - Select a suitable virtual device, such as **Pixel 9** with API **35** and **Android 15**.
+     - Choose a system image (e.g., Android API level 30 or higher) and complete the setup.
+   - Alternatively, connect a physical Android device via USB. Make sure USB debugging is enabled on the device and the necessary drivers are installed.
+
+3. **Install Dependencies**
+   - Open the terminal in Android Studio (or your system terminal, making sure you are in the project directory).
+   - Run the following command to install all the required Flutter packages and dependencies:
+     ```sh
+     flutter pub get
+     ```
 
 ## Running the App
-1. **Run the App on an Emulator or Device**
-   - Ensure that an emulator or a physical device is connected.
-   - Run the following command:
+
+1. **Run the App**
+   - In Android Studio:
+     - Select the connected emulator or physical device from the dropdown menu at the top of the IDE.
+     - Click the **"Run"** button (the green play icon) to compile and deploy the app.
+   - Alternatively, from the terminal, you can run:
      ```sh
      flutter run
      ```
 
-2. **Debugging**
-   If there are issues while running the app, use the following command for more verbose output:
-   ```sh
-   flutter run -v
-   ```
+2. **Debugging and Troubleshooting**
+   - If the app doesn't run as expected or you encounter issues:
+     - Use the verbose mode to get detailed logs:
+       ```sh
+       flutter run -v
+       ```
+     - Ensure the emulator is running or the physical device is properly connected.
+     - Check the terminal or logcat in Android Studio for detailed error messages.
+
+3. **Firebase and Google Maps**
+   - The project is pre-configured with Firebase and Google Maps API. Ensure you are connected to the internet so these services can work seamlessly.
+
+By following these steps, you should be able to deploy and run the app easily. If any issues arise, refer to the detailed logs or documentation provided with Flutter and Android Studio.
+
 
 ## Usage
 - **Registration/Login**: Users must create an account using their email or log in with an existing account.
