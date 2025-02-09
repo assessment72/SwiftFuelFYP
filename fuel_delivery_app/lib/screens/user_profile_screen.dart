@@ -58,12 +58,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'User Profile',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -71,11 +76,63 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Email: ${email ?? 'Loading...'}', style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 10),
-            Text('Phone: ${phoneNumber ?? 'Loading...'}', style: const TextStyle(fontSize: 18)),
+            // Profile Picture Placeholder
+            Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[300], // Light grey background
+                child: Icon(
+                  Icons.account_circle,
+                  size: 120,
+                  color: Colors.grey[600], // Slightly darker grey icon
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // User Details with Icons
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.email, color: Colors.grey, size: 26),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Text(
+                      email ?? 'Loading...',
+                      style: const TextStyle(fontSize: 18, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.phone, color: Colors.grey, size: 26),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Text(
+                      phoneNumber ?? 'Loading...',
+                      style: const TextStyle(fontSize: 18, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
