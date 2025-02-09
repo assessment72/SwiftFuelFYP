@@ -61,6 +61,16 @@
 + Did some major work and progress for the Interim Report.
 + Added a README file which guides the reader on how to deploy and run the app themselves. 
 
+09/02/2025:
+
++ Implemented the user profile/account management screen with proper integration to the backend firebase and home screen. 
++ Added the bottom app navigation bar to the user profile screen.
++ Added a placeholder profile picture for the user profile screen and made some UI adjustments to match the UI of the entire app for consistency.
++ Implemented a change password feature for the user profile screen so that the users can change their passwords if they want.
+
+
+
+
 
 
 
