@@ -16,6 +16,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String? email;
   String? phoneNumber;
   int _selectedIndex = 2; // Ensure "Account" is selected
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isUpdating = false; // To show loading when updating password
 
   @override
   void initState() {
@@ -55,6 +57,36 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  Future<void> _changePassword() async {
+    String newPassword = _passwordController.text.trim();
+    if (newPassword.isEmpty || newPassword.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters long')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isUpdating = true;
+    });
+
+    try {
+      await _auth.currentUser?.updatePassword(newPassword);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password updated successfully')),
+      );
+      _passwordController.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating password: $e')),
+      );
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +105,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        child:Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,11 +115,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Center(
               child: CircleAvatar(
                 radius: 60,
-                backgroundColor: Colors.grey[300], // Light grey background
+                backgroundColor: Colors.grey[300],
                 child: Icon(
                   Icons.account_circle,
                   size: 120,
-                  color: Colors.grey[600], // Slightly darker grey icon
+                  color: Colors.grey[600],
                 ),
               ),
             ),
@@ -133,7 +166,58 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 30),
+
+            // Change Password Section
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Change Password",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Enter new password',
+                      prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _isUpdating ? null : _changePassword,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE91E63),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(27),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                      horizontal: 10),
+                    ),
+                    child: _isUpdating
+                        ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                        : const Text('Update Password', style: TextStyle(fontSize: 15)),
+                  ),
+                ],
+              ),
+            ),
           ],
+        ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
