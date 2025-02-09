@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
+import 'package:fuel_delivery_app/screens/user_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,6 +24,7 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: [
+          // Logout Button
           IconButton(
             icon: const Icon(
               Icons.logout,
@@ -31,18 +32,12 @@ class HomeScreen extends StatelessWidget {
             ),
             onPressed: () async {
               try {
-                // Sign out the current user
                 await FirebaseAuth.instance.signOut();
-
-                // Show a success message
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Signed out successfully')),
                 );
-
-                // Navigate back to the login screen
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
               } catch (e) {
-                // Handle error, show an error message if necessary
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error signing out: $e')),
                 );
@@ -50,7 +45,6 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ],
-
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -69,10 +63,7 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.search,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.search, color: Colors.grey),
                       const SizedBox(width: 10),
                       const Expanded(
                         child: TextField(
@@ -83,20 +74,13 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          // filter functionality here
-                        },
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.grey,
-                        ),
+                        onPressed: () {},
+                        icon: const Icon(Icons.filter_list, color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Graphical Content Container
                 Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
@@ -107,53 +91,41 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   padding: const EdgeInsets.all(20.0),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '24/7 Fuel service, at petrol station rates.',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Enjoy our contactless fuel delivery straight to your car with flexible scheduling. Easy booking, at your convenience!',
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Navigate to fuel delivery
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFE91E63),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 20,
-                                ),
-                              ),
-                              child: const Text(
-                                'Discover SwiftFuel',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
+                      const Text(
+                        '24/7 Fuel service, at petrol station rates.',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Enjoy our contactless fuel delivery straight to your car with flexible scheduling.',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE91E63),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 20,
+                          ),
+                        ),
+                        child: const Text('Discover SwiftFuel'),
+                      ),
                     ],
                   ),
                 ),
@@ -211,26 +183,24 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
+        onTap: (index) {
+          if (index == 2) { // When "Account" is clicked
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+            );
+          }
+        },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Account',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
         ],
       ),
     );
