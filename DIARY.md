@@ -68,6 +68,18 @@
 + Added a placeholder profile picture for the user profile screen and made some UI adjustments to match the UI of the entire app for consistency.
 + Implemented a change password feature for the user profile screen so that the users can change their passwords if they want.
 
+23/02/2025:
+
++ Implemented the payment screen with proper UI
++ Implemented the entire payment system for fuel orders using Stripe integration
++ Successful testing of the stripe integrated payment system using Stripe's test mode and test card details
++ Created a list of development sided things to be done at the very end after the app is completed 
+
+
+
+
+
+
 
 
 
