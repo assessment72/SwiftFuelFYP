@@ -4,10 +4,12 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Stripe.publishableKey = "pk_test_51QvWmxLdbeQ0UiZd1jqwZ2vPWtDNJqVAi3advQvTrixYOZYDxmBVDTpdxIaN9C01HddNAbTeEtrsMMOcLTvjlygO00dGcWbyqv";
 
   runApp(MyApp());
 }

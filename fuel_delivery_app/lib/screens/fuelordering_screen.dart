@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:location/location.dart';
+import 'package:fuel_delivery_app/screens/payment_screen.dart';
 
 class FuelOrderingScreen extends StatefulWidget {
   @override
@@ -135,37 +136,48 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   }
 
   Future<void> _placeOrder() async {
-    User? user = _auth.currentUser; // Get the current user
-    if (user == null) {
+    if (_selectedFuelType == null || _selectedLocation == null || _vehicleNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in')),
+        const SnackBar(content: Text('Please fill all fields and select location')),
       );
       return;
     }
 
-    if (_selectedLocation != null &&
-        _selectedFuelType != null &&
-        _vehicleNumberController.text.isNotEmpty) {
-      // Save Order Details to Firestore
-      await _firestore.collection('orders').add({
-        'userId': user.uid,
-        'fuelType': _selectedFuelType,
-        'vehicleNumber': _vehicleNumberController.text,
-        'location': GeoPoint(
-            _selectedLocation!.latitude, _selectedLocation!.longitude),
-        'orderedAt': Timestamp.now(),
-      });
+    // Set Order Amount
+    double orderAmount = 50.0;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order placed successfully')),
-      );
-      Navigator.pop(context); // Go back to home screen
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select location')),
-      );
+    // Navigate to Payment Screen
+    bool paymentSuccessful = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          fuelType: _selectedFuelType!,
+          vehicleNumber: _vehicleNumberController.text,
+          amount: orderAmount,
+        ),
+      ),
+    );
+
+    if (paymentSuccessful == true) {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        // Save Order Details to Firestore
+        await _firestore.collection('orders').add({
+          'userId': user.uid,
+          'fuelType': _selectedFuelType,
+          'vehicleNumber': _vehicleNumberController.text,
+          'location': GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
+          'orderedAt': Timestamp.now(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order placed successfully')),
+        );
+        Navigator.pop(context); // Go back to home screen
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
