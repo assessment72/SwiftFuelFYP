@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -30,6 +29,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'assets/logo.png',
               height: 200,
             ),
+
+            // Email Input Field
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F2F2),
@@ -38,19 +39,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.email,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.email, color: Colors.grey),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        labelStyle: TextStyle(
-                          color: Colors.black,
-                        ),
                         border: InputBorder.none,
                       ),
                     ),
@@ -58,6 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
             ),
+
+            // Password Input Field
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F2F2),
@@ -66,19 +63,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.key,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.key, color: Colors.grey),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _passwordController,
                       decoration: const InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(
-                          color: Colors.black,
-                        ),
                         border: InputBorder.none,
                       ),
                       obscureText: true,
@@ -87,6 +78,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
             ),
+
+            // Mobile Number Input Field
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F2F2),
@@ -95,10 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.phone,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.phone, color: Colors.grey),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextFormField(
@@ -106,10 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                         prefixText: '+44 ',
                         labelText: 'Mobile Number',
-                        labelStyle: TextStyle(
-                          color: Colors.black,
-                        ),
-                        border: InputBorder.none, // Remove the default border
+                        border: InputBorder.none,
                       ),
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
@@ -120,6 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
@@ -131,12 +119,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     child: Text(
                       'Already have an account? Login here',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.black,
-                      ),
+                      style: TextStyle(fontSize: 10, color: Colors.black),
                     ),
                   ),
+
+                  // Register Button
                   FilledButton(
                     style: FilledButton.styleFrom(
                       backgroundColor: Color(0xFFE91E63),
@@ -150,12 +137,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       if (email.isNotEmpty && password.isNotEmpty && mobileNumber.isNotEmpty) {
                         User? user = await _authService.register(email, password);
+
                         if (user != null) {
                           String fullMobileNumber = '+44 ' + mobileNumber;
-                          // Save additional data to Firestore
+
+                          // Store User Data & Role in Firestore
                           await _firestore.collection('users').doc(user.uid).set({
                             'email': email,
                             'mobileNumber': fullMobileNumber,
+                            'role': 'customer',
                             'createdAt': Timestamp.now(),
                           });
 
@@ -177,9 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                     child: Text(
                       'Register',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
+                      style: TextStyle(fontSize: 18),
                     ),
                   )
                 ],

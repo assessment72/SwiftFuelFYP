@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:fuel_delivery_app/screens/home_screen.dart';
+import 'package:fuel_delivery_app/screens/delivery_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -34,19 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.email,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.email, color: Colors.grey),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        labelStyle: TextStyle(
-                          color: Colors.black,
-                        ),
                         border: InputBorder.none,
                       ),
                     ),
@@ -62,19 +57,13 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.key,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.key, color: Colors.grey),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _passwordController,
                       decoration: const InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(
-                          color: Colors.black,
-                        ),
                         border: InputBorder.none,
                       ),
                       obscureText: true,
@@ -92,13 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.pushNamed(context, '/register');
                     },
-                    child: Text(
-                      'Dont have an account? Create here',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.black,
-                      ),
-                    ),
+                    child: Text('Dont have an account? Create here', style: TextStyle(fontSize: 10, color: Colors.black)),
                   ),
                   FilledButton(
                     style: FilledButton.styleFrom(
@@ -110,14 +93,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       String email = _emailController.text.trim();
                       String password = _passwordController.text.trim();
                       if (email.isNotEmpty && password.isNotEmpty) {
-                        User? user = await _authService.logIn(email, password);
-                        if (user != null) {
-                          Navigator.pushNamed(context, '/home');
-                          print('Login successful');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('You have successfully logged in.')));
+                        var userData = await _authService.logIn(email, password);
+                        if (userData != null) {
+                          if (userData['role'] == 'customer') {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                          } else if (userData['role'] == 'driver') {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DeliveryDashboardScreen()));
+                          }
                         } else {
-                          print('Login failed');
                           ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Login failed')));
                         }
@@ -125,11 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       'Login',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
+                      style: TextStyle(fontSize: 18),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
