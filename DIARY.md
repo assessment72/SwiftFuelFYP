@@ -75,6 +75,17 @@
 + Successful testing of the stripe integrated payment system using Stripe's test mode and test card details
 + Created a list of development sided things to be done at the very end after the app is completed 
 
+05/03/2025:
+
++ Implemented role based access control (RBAC) so that users/customers are taken to the actual app and the delivery partner/driver/person is taken to the delivery interface of the app for managing fuel orders.
++ Implemented the delivery partner dashboard screen where they can take orders and manage them accordingly to send real time order updates to the customer. 
++ Further developed the delivery partner dashboard which now shows a list of placed fuel orders which the driver can accept and the order is assigned to the one who accepts it, the assigned orders are also removed from the list.
++ Successfully tested that everything in the app is updated in realtime/live, did this testing using three virtual emulator devices simultaneiously.
++ Successfully tested that my app looks the same on a different screen size and resolution than the one I am currently developing it on, did this using a different model of the virtual emulator. 
+
+
+
+
 
 
 
