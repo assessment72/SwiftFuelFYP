@@ -161,19 +161,20 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     if (paymentSuccessful == true) {
       User? user = _auth.currentUser;
       if (user != null) {
-        // Save Order Details to Firestore
         await _firestore.collection('orders').add({
           'userId': user.uid,
           'fuelType': _selectedFuelType,
           'vehicleNumber': _vehicleNumberController.text,
           'location': GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
           'orderedAt': Timestamp.now(),
+          'status': 'Pending',
+          'assignedDriverId': null,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order placed successfully')),
         );
-        Navigator.pop(context); // Go back to home screen
+        Navigator.pop(context);
       }
     }
   }
