@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:location/location.dart';
 import 'package:fuel_delivery_app/screens/payment_screen.dart';
+import 'package:fuel_delivery_app/screens/ordertracking_screen.dart';
+
 
 class FuelOrderingScreen extends StatefulWidget {
   @override
@@ -161,7 +163,8 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     if (paymentSuccessful == true) {
       User? user = _auth.currentUser;
       if (user != null) {
-        await _firestore.collection('orders').add({
+        // Save Order to Firestore
+        DocumentReference orderRef = await _firestore.collection('orders').add({
           'userId': user.uid,
           'fuelType': _selectedFuelType,
           'vehicleNumber': _vehicleNumberController.text,
@@ -174,10 +177,18 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order placed successfully')),
         );
-        Navigator.pop(context);
+
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderTrackingScreen(orderId: orderRef.id),
+          ),
+        );
       }
     }
   }
+
 
 
   @override

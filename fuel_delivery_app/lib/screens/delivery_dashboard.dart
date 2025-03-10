@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/services/auth_service.dart';
+import 'package:location/location.dart';
 
 class DeliveryDashboardScreen extends StatefulWidget {
   const DeliveryDashboardScreen({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _driverId;
+  Location _location = Location();
 
   @override
   void initState() {
@@ -25,7 +27,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     User? user = _auth.currentUser;
     if (user != null) {
       setState(() {
-        _driverId = user.uid; // Get the logged-in delivery partner ID
+        _driverId = user.uid;
       });
     }
   }
@@ -33,9 +35,7 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
   Future<void> _assignOrder(String orderId) async {
     if (_driverId == null) return;
 
-    // Check if order is already assigned
-    DocumentSnapshot orderSnapshot =
-    await _firestore.collection('orders').doc(orderId).get();
+    DocumentSnapshot orderSnapshot = await _firestore.collection('orders').doc(orderId).get();
     if (orderSnapshot.exists && orderSnapshot['assignedDriverId'] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('This order has already been assigned to another driver.')),
@@ -43,11 +43,12 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
       return;
     }
 
-    // Assign the order to the current driver
     await _firestore.collection('orders').doc(orderId).update({
       'assignedDriverId': _driverId,
       'status': 'Assigned',
     });
+
+    _startLocationUpdates(orderId);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order successfully assigned to you!')),
@@ -57,12 +58,24 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
   Future<void> _markOrderAsDelivered(String orderId) async {
     await _firestore.collection('orders').doc(orderId).update({
       'status': 'Completed',
+      'driverLocation': null,
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order marked as Delivered!')),
     );
   }
+
+  void _startLocationUpdates(String orderId) {
+    _location.onLocationChanged.listen((LocationData currentLocation) async {
+      if (_driverId == null) return;
+
+      await _firestore.collection('orders').doc(orderId).update({
+        'driverLocation': GeoPoint(currentLocation.latitude!, currentLocation.longitude!)
+      });
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
