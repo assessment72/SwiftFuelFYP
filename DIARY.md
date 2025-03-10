@@ -83,6 +83,15 @@
 + Successfully tested that everything in the app is updated in realtime/live, did this testing using three virtual emulator devices simultaneiously.
 + Successfully tested that my app looks the same on a different screen size and resolution than the one I am currently developing it on, did this using a different model of the virtual emulator. 
 
+10/03/2025:
+
++ Implemented a feature for the delivery dashboard screen where the drivers are now shown their assigned orders after accepting one, now they can also mark the orders as delivered when assigned one.
++ Developed a new screen called past orders screen which displays the customers with their complete past fuel order history.
++ Developed and implemented the order tracking screen for customers where they can get realtime order updates on the drivers location etc using google maps integration. (THERE IS SOME WORK LEFT REGARDING THIS AS OF THIS DIARY ENTRY) 
+
+
+
+
 
 
 
