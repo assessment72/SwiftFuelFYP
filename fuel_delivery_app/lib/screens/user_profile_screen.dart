@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fuel_delivery_app/screens/pastorders_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? email;
   String? phoneNumber;
-  int _selectedIndex = 2; // Ensure "Account" is selected
+  int _selectedIndex = 2; // Ensures "Account" is selected by default
   final TextEditingController _passwordController = TextEditingController();
   bool _isUpdating = false; // To show loading when updating password
 
@@ -44,15 +45,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _onItemTapped(int index) {
-    if (index == _selectedIndex) return; // Prevent unnecessary navigation
+    if (index == _selectedIndex) return;
+
     setState(() {
       _selectedIndex = index;
     });
 
-    if (index == 0) { // Navigate to Home Screen
+    if (index == 0) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PastOrdersScreen()),
       );
     }
   }
@@ -61,7 +68,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     String newPassword = _passwordController.text.trim();
     if (newPassword.isEmpty || newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 6 characters long')),
+        const SnackBar(
+            content: Text('Password must be at least 6 characters long')),
       );
       return;
     }
@@ -106,118 +114,125 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
-        child:Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Profile Picture Placeholder
-            Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[300],
-                child: Icon(
-                  Icons.account_circle,
-                  size: 120,
-                  color: Colors.grey[600],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Profile Picture Placeholder
+              Center(
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.grey[300],
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 120,
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // User Details with Icons
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.email, color: Colors.grey, size: 26),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Text(
-                      email ?? 'Loading...',
-                      style: const TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.phone, color: Colors.grey, size: 26),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Text(
-                      phoneNumber ?? 'Loading...',
-                      style: const TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // Change Password Section
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Change Password",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter new password',
-                      prefixIcon: Icon(Icons.lock, color: Colors.grey),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _isUpdating ? null : _changePassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE91E63),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(27),
+              // User Details with Icons
+              Container(
+                padding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F2F2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.email, color: Colors.grey, size: 26),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Text(
+                        email ?? 'Loading...',
+                        style:
+                        const TextStyle(fontSize: 18, color: Colors.black),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                      horizontal: 10),
                     ),
-                    child: _isUpdating
-                        ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                    )
-                        : const Text('Update Password', style: TextStyle(fontSize: 15)),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 15),
+
+              Container(
+                padding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F2F2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.phone, color: Colors.grey, size: 26),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Text(
+                        phoneNumber ?? 'Loading...',
+                        style:
+                        const TextStyle(fontSize: 18, color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Change Password Section
+              Container(
+                padding:
+                const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F2F2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Change Password",
+                      style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter new password',
+                        prefixIcon: Icon(Icons.lock, color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _isUpdating ? null : _changePassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE91E63),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(27),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 10),
+                      ),
+                      child: _isUpdating
+                          ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
+                      )
+                          : const Text('Update Password',
+                          style: TextStyle(fontSize: 15)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -226,12 +241,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        currentIndex: _selectedIndex, // Ensure "Account" icon is highlighted
+        currentIndex: _selectedIndex, // Keeps "Account" tab highlighted
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart), label: 'Orders'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), label: 'Account'),
         ],
       ),
     );

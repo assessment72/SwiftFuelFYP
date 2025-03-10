@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'package:fuel_delivery_app/screens/user_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fuel_delivery_app/screens/pastorders_screen.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -190,13 +192,19 @@ class HomeScreen extends StatelessWidget {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         onTap: (index) {
-          if (index == 2) { // When "Account" is clicked
+          if (index == 1) { // When "Orders" is clicked
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PastOrdersScreen()),
+            );
+          } else if (index == 2) { // When "Account" is clicked
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const UserProfileScreen()),
             );
           }
         },
+
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
