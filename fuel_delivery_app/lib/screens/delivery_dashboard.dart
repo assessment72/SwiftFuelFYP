@@ -34,7 +34,8 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     if (_driverId == null) return;
 
     // Check if order is already assigned
-    DocumentSnapshot orderSnapshot = await _firestore.collection('orders').doc(orderId).get();
+    DocumentSnapshot orderSnapshot =
+    await _firestore.collection('orders').doc(orderId).get();
     if (orderSnapshot.exists && orderSnapshot['assignedDriverId'] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('This order has already been assigned to another driver.')),
@@ -45,11 +46,21 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
     // Assign the order to the current driver
     await _firestore.collection('orders').doc(orderId).update({
       'assignedDriverId': _driverId,
-      'status': 'Assigned', // Updating status in Firestore
+      'status': 'Assigned',
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order successfully assigned to you!')),
+    );
+  }
+
+  Future<void> _markOrderAsDelivered(String orderId) async {
+    await _firestore.collection('orders').doc(orderId).update({
+      'status': 'Completed',
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Order marked as Delivered!')),
     );
   }
 
@@ -80,63 +91,151 @@ class _DeliveryDashboardScreenState extends State<DeliveryDashboardScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('orders')
-            .where('status', isEqualTo: 'Pending') // Ensure order is pending
-            .where('assignedDriverId', isEqualTo: null) // Ensure it's unassigned
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('orders')
+                  .where('status', isEqualTo: 'Pending')
+                  .where('assignedDriverId', isEqualTo: null)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'No available orders for delivery at the moment.',
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            );
-          }
-
-          var orders = snapshot.data!.docs;
-
-          // Debugging: Print fetched orders
-          print("Orders received: ${orders.length}");
-          for (var order in orders) {
-            print("Order ID: ${order.id}, Assigned Driver: ${order['assignedDriverId']}");
-          }
-
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              var order = orders[index];
-              return Card(
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(
-                    "Fuel Type: ${order['fuelType']}",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    "Vehicle: ${order['vehicleNumber']}\nLocation: ${order['location'].latitude}, ${order['location'].longitude}",
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: () => _assignOrder(order.id),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE91E63),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No available orders for delivery at the moment.',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
-                    child: const Text("Accept Order"),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                  );
+                }
+
+                var orders = snapshot.data!.docs;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        "Available Orders",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: orders.length,
+                        itemBuilder: (context, index) {
+                          var order = orders[index];
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            child: ListTile(
+                              title: Text(
+                                "Fuel Type: ${order['fuelType']}",
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                "Vehicle: ${order['vehicleNumber']}\nLocation: ${order['location'].latitude}, ${order['location'].longitude}",
+                              ),
+                              trailing: ElevatedButton(
+                                onPressed: () => _assignOrder(order.id),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFE91E63),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                ),
+                                child: const Text("Accept Order"),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('orders')
+                  .where('assignedDriverId', isEqualTo: _driverId)
+                  .where('status', isEqualTo: 'Assigned')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No assigned orders at the moment.',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  );
+                }
+
+                var orders = snapshot.data!.docs;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        "My Assigned Orders",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: orders.length,
+                        itemBuilder: (context, index) {
+                          var order = orders[index];
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            child: ListTile(
+                              title: Text(
+                                "Fuel Type: ${order['fuelType']}",
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                "Vehicle: ${order['vehicleNumber']}\nLocation: ${order['location'].latitude}, ${order['location'].longitude}",
+                              ),
+                              trailing: ElevatedButton(
+                                onPressed: () => _markOrderAsDelivered(order.id),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                ),
+                                child: const Text("Mark as Delivered"),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
