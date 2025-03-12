@@ -14,6 +14,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
 
+  /// 🔹 **Fuel Prices Per Liter**
+  final List<Map<String, dynamic>> fuelPrices = [
+    {'type': 'Petrol', 'price': 1.39, 'color': Colors.black},
+    {'type': 'Diesel', 'price': 1.5, 'color': Colors.black},
+    {'type': 'Premium', 'price': 2.12, 'color': Colors.black},
+  ];
+
   @override
   void dispose() {
     _selectedIndex.dispose();
@@ -34,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                _buildSearchBar(),
+                _buildFuelPriceDisplay(),
                 const SizedBox(height: 40),
                 _buildFuelServiceInfo(),
                 const SizedBox(height: 40),
@@ -90,31 +97,48 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// 🔹 **Search Bar Widget**
-  Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(50.0),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Colors.grey),
-          const SizedBox(width: 10),
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
+  /// 🔹 **Fuel Price Display (Horizontal Cards)**
+  Widget _buildFuelPriceDisplay() {
+    return SizedBox(
+      height: 90,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: fuelPrices.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final fuel = fuelPrices[index];
+          return Container(
+            width: 115,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE91E63).withOpacity(0.09),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: fuel['color'], width: 2),
             ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.filter_list, color: Colors.grey),
-          ),
-        ],
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  fuel['type'],
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: fuel['color'],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  '\£${fuel['price'].toStringAsFixed(2)} / L',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

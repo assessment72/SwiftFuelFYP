@@ -35,6 +35,12 @@ class _PastOrdersScreenState extends State<PastOrdersScreen> {
         centerTitle: true,
         elevation: 0,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: _handleLogout,
+          ),
+        ],
       ),
       body: user == null
           ? const Center(child: Text("Please log in to view your orders."))
@@ -168,5 +174,21 @@ class _PastOrdersScreenState extends State<PastOrdersScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Signed out successfully')),
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing out: $e')),
+      );
+    }
   }
 }
