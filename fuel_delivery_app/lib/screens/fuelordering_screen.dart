@@ -6,7 +6,6 @@ import 'package:location/location.dart';
 import 'package:fuel_delivery_app/screens/payment_screen.dart';
 import 'package:fuel_delivery_app/screens/ordertracking_screen.dart';
 
-
 class FuelOrderingScreen extends StatefulWidget {
   @override
   _FuelOrderingScreenState createState() => _FuelOrderingScreenState();
@@ -17,9 +16,9 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final TextEditingController _vehicleNumberController = TextEditingController();
+  final ValueNotifier<String?> _selectedFuelType = ValueNotifier<String?>(null);
+  final ValueNotifier<LatLng?> _selectedLocation = ValueNotifier<LatLng?>(null);
 
-  String? _selectedFuelType;
-  LatLng? _selectedLocation;
   GoogleMapController? _mapController;
 
   @override
@@ -28,50 +27,43 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     _getUserCurrentLocation();
   }
 
+  @override
+  void dispose() {
+    _vehicleNumberController.dispose();
+    _selectedFuelType.dispose();
+    _selectedLocation.dispose();
+    _mapController?.dispose();
+    super.dispose();
+  }
+
   Future<void> _getUserCurrentLocation() async {
     Location location = Location();
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
-    // Check if location service is enabled
-    _serviceEnabled = await location.serviceEnabled();
+    bool _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
+      if (!_serviceEnabled) return;
     }
 
-    // Check location permission
-    _permissionGranted = await location.hasPermission();
+    PermissionStatus _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
+      if (_permissionGranted != PermissionStatus.granted) return;
     }
 
-    // Get user location
-    _locationData = await location.getLocation();
-    setState(() {
-      _selectedLocation = LatLng(_locationData.latitude!, _locationData.longitude!);
-    });
+    LocationData _locationData = await location.getLocation();
+    _selectedLocation.value = LatLng(_locationData.latitude!, _locationData.longitude!);
 
-    // Move the camera to the user's current location
-    if (_mapController != null && _selectedLocation != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: _selectedLocation!, zoom: 15),
-        ),
-      );
-    }
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: _selectedLocation.value!, zoom: 15),
+      ),
+    );
   }
 
   Future<void> _showOrderConfirmation() async {
-    if (_selectedFuelType == null || _selectedLocation == null || _vehicleNumberController.text.isEmpty) {
+    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select location')),
+        const SnackBar(content: Text('Please fill all fields and select a location')),
       );
       return;
     }
@@ -85,33 +77,21 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Fuel Type: $_selectedFuelType'),
-              const SizedBox(height: 10),
-              Text('Vehicle Number: ${_vehicleNumberController.text}'),
-              const SizedBox(height: 10),
-              Text('Location: (${_selectedLocation!.latitude}, ${_selectedLocation!.longitude})'),
+              Text('🚗 Vehicle: ${_vehicleNumberController.text}'),
+              const SizedBox(height: 8),
+              Text('⛽ Fuel Type: ${_selectedFuelType.value}'),
+              const SizedBox(height: 8),
+              Text('📍 Location: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})'),
             ],
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 15.0,
-                  horizontal: 25.0,
-                ),
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(fontSize: 16),
-              ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 await _placeOrder();
               },
               style: ElevatedButton.styleFrom(
@@ -120,55 +100,43 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 15.0,
-                  horizontal: 50.0,
-                ),
               ),
-              child: const Text(
-                'Confirm',
-                style: TextStyle(fontSize: 16),
-              ),
+              child: const Text('Confirm'),
             ),
           ],
-
         );
       },
     );
   }
 
   Future<void> _placeOrder() async {
-    if (_selectedFuelType == null || _selectedLocation == null || _vehicleNumberController.text.isEmpty) {
+    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select location')),
+        const SnackBar(content: Text('Please fill all fields and select a location')),
       );
       return;
     }
 
-    // Set Order Amount
     double orderAmount = 50.0;
-
-    // Navigate to Payment Screen
     bool paymentSuccessful = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PaymentScreen(
-          fuelType: _selectedFuelType!,
+          fuelType: _selectedFuelType.value!,
           vehicleNumber: _vehicleNumberController.text,
           amount: orderAmount,
         ),
       ),
     );
 
-    if (paymentSuccessful == true) {
+    if (paymentSuccessful) {
       User? user = _auth.currentUser;
       if (user != null) {
-        // Save Order to Firestore
         DocumentReference orderRef = await _firestore.collection('orders').add({
           'userId': user.uid,
-          'fuelType': _selectedFuelType,
+          'fuelType': _selectedFuelType.value,
           'vehicleNumber': _vehicleNumberController.text,
-          'location': GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
+          'location': GeoPoint(_selectedLocation.value!.latitude, _selectedLocation.value!.longitude),
           'orderedAt': Timestamp.now(),
           'status': 'Pending',
           'assignedDriverId': null,
@@ -177,7 +145,6 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order placed successfully')),
         );
-
 
         Navigator.pushReplacement(
           context,
@@ -189,148 +156,157 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFE91E63),
         elevation: 0,
         title: const Text(
           'Order Fuel',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushNamed(context, '/home');
           },
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Google Maps Widget
-              Container(
-                height: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: Color(0xFFE91E63),
-                  ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+            const Padding(
+            padding: EdgeInsets.only(bottom: 10, top: 10),
+            child: Text(
+              "Select Your Location",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
+            ),
+                ValueListenableBuilder<LatLng?>(
+                  valueListenable: _selectedLocation,
+                  builder: (context, location, _) {
+                    return Container(
+                      height: 300,
+                      margin: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.pink.shade200),
+                      ),
+                    child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                      child: location == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : GoogleMap(
+                        initialCameraPosition: CameraPosition(target: location, zoom: 15),
+                        onMapCreated: (controller) {
+                          _mapController = controller;
+                          _getUserCurrentLocation();
+                        },
+                        onTap: (LatLng loc) {
+                          _selectedLocation.value = loc;
+                        },
+                        markers: location != null
+                            ? {
+                          Marker(markerId: const MarkerId("selected-location"), position: location),
+                        }
+                            : {},
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: true,
+                      ),
+                    )
+                    );
+                  },
                 ),
-                child: _selectedLocation == null
-                    ? Center(child: CircularProgressIndicator())
-                    : GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _selectedLocation!, // Use user's current location
-                    zoom: 15,
-                  ),
-                  onMapCreated: (controller) {
-                    _mapController = controller;
-                    _getUserCurrentLocation(); // Get user location when map is created
+                const SizedBox(height: 20),
+
+                ValueListenableBuilder<String?>(
+                  valueListenable: _selectedFuelType,
+                  builder: (context, fuelType, _) {
+                    return _buildDropdown(fuelType);
                   },
-                  onTap: (LatLng location) {
-                    setState(() {
-                      _selectedLocation = location;
-                    });
-                  },
-                  markers: _selectedLocation != null
-                      ? {
-                    Marker(
-                      markerId: MarkerId("selected-location"),
-                      position: _selectedLocation!,
+                ),
+                const SizedBox(height: 20),
+
+                _buildTextField(_vehicleNumberController, 'Vehicle Number Plate'),
+                const SizedBox(height: 20),
+
+                ElevatedButton(
+                  onPressed: _showOrderConfirmation,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE91E63),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
-                  }
-                      : {},
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Fuel Type Dropdown
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F2F2),
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: DropdownButtonFormField<String>(
-                  value: _selectedFuelType,
-                  hint: const Text("Select Fuel Type"),
-                  items: ['Petrol', 'Diesel', 'Premium']
-                      .map((fuel) => DropdownMenuItem(
-                    value: fuel,
-                    child: Text(fuel),
-                  ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFuelType = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
+                    child: Text('Place Order', style: TextStyle(fontSize: 18)),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Vehicle Number Plate TextField
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F2F2),
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: _vehicleNumberController,
-                  decoration: const InputDecoration(
-                    hintText: 'Vehicle Number Plate',
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              const Spacer(),
-
-              // Submit Button
-              ElevatedButton(
-                onPressed: _showOrderConfirmation,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE91E63),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15.0,
-                    horizontal: 50.0,
-                  ),
-                ),
-                child: const Text(
-                  'Place Order',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildDropdown(String? fuelType) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15.0),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+      child: DropdownButtonFormField<String>(
+        value: fuelType,
+        hint: const Text(
+          "Select Fuel Type",
+          style: TextStyle(color: Colors.black54, fontSize: 16),
+        ),
+        items: ['Petrol', 'Diesel', 'Premium']
+            .map((fuel) => DropdownMenuItem(
+          value: fuel,
+          child: Text(
+            fuel,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ))
+            .toList(),
+        onChanged: (value) => _selectedFuelType.value = value,
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+        ),
+        icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
+        dropdownColor: Colors.white,
+        style: const TextStyle(fontSize: 16, color: Colors.black87),
+      ),
+    );
+  }
+
+
+  Widget _buildTextField(TextEditingController controller, String hint) {
+    return TextField(controller: controller, decoration: InputDecoration(hintText: hint));
   }
 }
