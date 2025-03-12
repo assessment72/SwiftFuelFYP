@@ -13,109 +13,149 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  final ValueNotifier<bool> _isPasswordVisible = ValueNotifier<bool>(false);
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _isPasswordVisible.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Image.asset(
-              'assets/logo.png',
-              height: 200,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
+    return SafeArea(
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.email, color: Colors.grey),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: InputBorder.none,
-                      ),
-                    ),
+                  const SizedBox(height: 50),
+                  Image.asset(
+                    'assets/logo.png',
+                    height: 200,
                   ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F2),
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.key, color: Colors.grey),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        border: InputBorder.none,
-                      ),
-                      obscureText: true,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/register');
+                  const SizedBox(height: 30),
+                  // Email Field
+                  _buildTextField(_emailController, 'Email', Icons.email, false),
+                  const SizedBox(height: 15),
+                  // Password Field with Visibility Toggle
+                  ValueListenableBuilder(
+                    valueListenable: _isPasswordVisible,
+                    builder: (context, value, child) {
+                      return _buildTextField(
+                          _passwordController, 'Password', Icons.lock, !value,
+                          suffixIcon: IconButton(
+                            icon: Icon(value ? Icons.visibility : Icons.visibility_off),
+                            onPressed: () {
+                              _isPasswordVisible.value = !_isPasswordVisible.value;
+                            },
+                          ));
                     },
-                    child: Text('Dont have an account? Create here', style: TextStyle(fontSize: 10, color: Colors.black)),
                   ),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Color(0xFFE91E63),
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(150, 50),
-                    ),
-                    onPressed: () async {
-                      String email = _emailController.text.trim();
-                      String password = _passwordController.text.trim();
-                      if (email.isNotEmpty && password.isNotEmpty) {
-                        var userData = await _authService.logIn(email, password);
-                        if (userData != null) {
-                          if (userData['role'] == 'customer') {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-                          } else if (userData['role'] == 'driver') {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DeliveryDashboardScreen()));
-                          }
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Login failed')));
-                        }
-                      }
-                    },
-                    child: Text(
-                      'Login',
-                      style: TextStyle(fontSize: 18),
+                  const SizedBox(height: 20),
+                  // Register & Login Button Row
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: const Text(
+                            'Don\'t have an account? Create here',
+                            style: TextStyle(fontSize: 12, color: Colors.black),
+                          ),
+                        ),
+                        FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFE91E63),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(150, 50),
+                          ),
+                          onPressed: _isLoading ? null : _handleLogin,
+                          child: _isLoading
+                              ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                              : const Text('Login', style: TextStyle(fontSize: 18)),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  /// Handles the login process
+  void _handleLogin() async {
+    setState(() => _isLoading = true);
+
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isNotEmpty && password.isNotEmpty) {
+      var userData = await _authService.logIn(email, password);
+      if (userData != null) {
+        if (userData['role'] == 'customer') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+        } else if (userData['role'] == 'driver') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()));
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed')),
+        );
+      }
+    }
+
+    setState(() => _isLoading = false);
+  }
+
+  /// Builds a custom text field widget
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText, {Widget? suffixIcon}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F2F2),
+        borderRadius: BorderRadius.circular(50.0),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              obscureText: obscureText,
+              decoration: InputDecoration(
+                labelText: label,
+                border: InputBorder.none,
+                suffixIcon: suffixIcon,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
