@@ -49,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 30),
 
                   // Email Field
-                  _buildTextField(_emailController, 'Email', Icons.email, false),
+                  _buildTextField(_emailController, 'Email', Icons.email, false,  key: const Key('regEmailField')),
                   const SizedBox(height: 15),
 
                   // Password Field with Visibility Toggle
@@ -67,6 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _isPasswordVisible.value = !_isPasswordVisible.value;
                           },
                         ),
+                        key: const Key('regPasswordField'),
                       );
                     },
                   ),
@@ -81,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     keyboardType: TextInputType.phone,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     prefixText: '+44 ',
+                    key: const Key('regMobileField'),
                   ),
                   const SizedBox(height: 20),
 
@@ -100,6 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         FilledButton(
+                          key: const Key('registerButton'),
                           style: FilledButton.styleFrom(
                             backgroundColor: const Color(0xFFE91E63),
                             foregroundColor: Colors.white,
@@ -173,11 +176,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       IconData icon,
       bool obscureText, {
         Widget? suffixIcon,
+        Key? key,
         TextInputType keyboardType = TextInputType.text,
         List<TextInputFormatter>? inputFormatters,
         String prefixText = '',
       }) {
     return Container(
+      key: key,
       decoration: BoxDecoration(
         color: const Color(0xFFF2F2F2),
         borderRadius: BorderRadius.circular(50.0),
