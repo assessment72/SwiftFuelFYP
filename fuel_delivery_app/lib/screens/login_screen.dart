@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 30),
                   // Email Field
-                  _buildTextField(_emailController, 'Email', Icons.email, false),
+                  _buildTextField(_emailController, 'Email', Icons.email, false, key: const Key('emailField')),
                   const SizedBox(height: 15),
                   // Password Field with Visibility Toggle
                   ValueListenableBuilder(
@@ -58,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               _isPasswordVisible.value = !_isPasswordVisible.value;
                             },
-                          ));
+                          ),
+                      key: const Key('passwordField'));
                     },
                   ),
                   const SizedBox(height: 20),
@@ -133,8 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds a custom text field widget
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText, {Widget? suffixIcon}) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText, {Widget? suffixIcon, Key? key,}) {
     return Container(
+      key: key,
       decoration: BoxDecoration(
         color: const Color(0xFFF2F2F2),
         borderRadius: BorderRadius.circular(50.0),

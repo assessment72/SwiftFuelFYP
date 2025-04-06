@@ -200,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Align(
       alignment: Alignment.bottomLeft,
       child: ElevatedButton(
+        key: const Key('orderFuelButton'),
         onPressed: () {
           Navigator.push(
             context,
