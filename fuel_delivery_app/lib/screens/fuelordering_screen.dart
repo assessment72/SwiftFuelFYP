@@ -237,10 +237,11 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _buildTextField(_vehicleNumberController, 'Vehicle Number Plate'),
+                _buildTextField(_vehicleNumberController, 'Vehicle Number Plate', key: const Key('vehicleField')),
                 const SizedBox(height: 20),
 
                 ElevatedButton(
+                  key: const Key('placeOrderButton'),
                   onPressed: _showOrderConfirmation,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE91E63),
@@ -279,6 +280,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
       child: DropdownButtonFormField<String>(
+        key: const Key('fuelDropdown'),
         value: fuelType,
         hint: const Text(
           "Select Fuel Type",
@@ -306,7 +308,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   }
 
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
-    return TextField(controller: controller, decoration: InputDecoration(hintText: hint));
+  Widget _buildTextField(TextEditingController controller, String hint, {Key? key}) {
+    return TextField(key: key, controller: controller, decoration: InputDecoration(hintText: hint));
   }
 }
