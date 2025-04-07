@@ -96,6 +96,14 @@
 + Did some bug fixes
 + Replaced the search bar on the home screen with a display of fuel prices and added working signout buttons to other screens
 
+06/04/2025 and 07/04/2025:
+
++ Performed successful integration testing of the entire mobile app.
++ Started finalizing the project for final submission 
++ Continued work on the final project report 
+
+ 
+
 
  
 
