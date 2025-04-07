@@ -73,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       automaticallyImplyLeading: false,
       actions: [
         IconButton(
+          key: const Key('logoutButton'),
           icon: const Icon(Icons.logout, color: Colors.black),
           onPressed: _handleLogout,
         ),
