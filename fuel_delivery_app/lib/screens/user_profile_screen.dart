@@ -220,6 +220,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
+                      key: const Key('passwordField'),
                       controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(
@@ -230,6 +231,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
+                      key: const Key('updatePasswordButton'),
                       onPressed: _isUpdating ? null : _changePassword,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE91E63),
