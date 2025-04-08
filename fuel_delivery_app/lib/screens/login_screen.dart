@@ -26,6 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -33,71 +35,91 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Container(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 200,
-                  ),
-                  const SizedBox(height: 30),
-                  // Email Field
-                  _buildTextField(_emailController, 'Email', Icons.email, false, key: const Key('emailField')),
-                  const SizedBox(height: 15),
-                  // Password Field with Visibility Toggle
-                  ValueListenableBuilder(
-                    valueListenable: _isPasswordVisible,
-                    builder: (context, value, child) {
-                      return _buildTextField(
-                          _passwordController, 'Password', Icons.lock, !value,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 100),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 50),
+                    Image.asset(
+                      'assets/logo.png',
+                      height: 200,
+                    ),
+                    const SizedBox(height: 30),
+
+                    // Email Field
+                    _buildTextField(
+                      _emailController,
+                      'Email',
+                      Icons.email,
+                      false,
+                      key: const Key('emailField'),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Password Field with Visibility Toggle
+                    ValueListenableBuilder(
+                      valueListenable: _isPasswordVisible,
+                      builder: (context, value, child) {
+                        return _buildTextField(
+                          _passwordController,
+                          'Password',
+                          Icons.lock,
+                          !value,
                           suffixIcon: IconButton(
                             icon: Icon(value ? Icons.visibility : Icons.visibility_off),
                             onPressed: () {
-                              _isPasswordVisible.value = !_isPasswordVisible.value;
+                              _isPasswordVisible.value = !value;
                             },
                           ),
-                      key: const Key('passwordField'));
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  // Register & Login Button Row
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          key: const Key('passwordField'),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 25),
+
+                    // Register & Login Row
+                    Row(
                       children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
-                          child: const Text(
-                            'Don\'t have an account? Create here',
-                            style: TextStyle(fontSize: 12, color: Colors.black),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/register');
+                            },
+                            child: const Text(
+                              'Don\'t have an account? Create here',
+                              style: TextStyle(fontSize: 10, color: Colors.black),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                         ),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFE91E63),
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(150, 50),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: screenWidth * 0.4,
+                          height: 50,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: const Color(0xFFE91E63),
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _isLoading ? null : _handleLogin,
+                            child: _isLoading
+                                ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                                : const Text('Login', style: TextStyle(fontSize: 18)),
                           ),
-                          onPressed: _isLoading ? null : _handleLogin,
-                          child: _isLoading
-                              ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
-                          )
-                              : const Text('Login', style: TextStyle(fontSize: 18)),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -134,7 +156,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds a custom text field widget
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool obscureText, {Widget? suffixIcon, Key? key,}) {
+  Widget _buildTextField(
+      TextEditingController controller,
+      String label,
+      IconData icon,
+      bool obscureText, {
+        Widget? suffixIcon,
+        Key? key,
+      }) {
     return Container(
       key: key,
       decoration: BoxDecoration(
