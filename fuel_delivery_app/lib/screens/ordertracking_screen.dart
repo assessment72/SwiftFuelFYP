@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -22,46 +23,61 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   String _orderStatus = "Pending";
   Set<Polyline> _polylines = {};
   String _mapStyle = '';
+  late final StreamSubscription<DocumentSnapshot> _orderSubscription;
 
   String googleMapsApiKey = "AIzaSyAoAkKeq7jfY5Z8xic5KTXp_Ex30u25ijw";
 
   @override
   void initState() {
     super.initState();
-    _loadMapStyle();
     _listenToOrderUpdates();
   }
 
-  /// Load Modern Google Maps Theme
-  Future<void> _loadMapStyle() async {
-    _mapStyle = await rootBundle.loadString('assets/map_style.json');
+  @override
+  void dispose() {
+    _orderSubscription.cancel();
+    _mapController?.dispose();
+    super.dispose();
   }
 
 
-  void _listenToOrderUpdates() {
-    FirebaseFirestore.instance.collection('orders').doc(widget.orderId).snapshots().listen((orderSnapshot) {
-      if (orderSnapshot.exists) {
-        GeoPoint customerGeoPoint = orderSnapshot['location'];
-        LatLng newCustomerLocation = LatLng(customerGeoPoint.latitude, customerGeoPoint.longitude);
 
-        LatLng? newDriverLocation;
-        if (orderSnapshot.data()!.containsKey('driverLocation')) {
-          GeoPoint driverGeoPoint = orderSnapshot['driverLocation'];
-          newDriverLocation = LatLng(driverGeoPoint.latitude, driverGeoPoint.longitude);
+  void _listenToOrderUpdates() {
+    _orderSubscription = FirebaseFirestore.instance
+        .collection('orders')
+        .doc(widget.orderId)
+        .snapshots()
+        .listen((orderSnapshot) {
+      if (orderSnapshot.exists) {
+        final data = orderSnapshot.data();
+        if (data == null) return;
+
+        GeoPoint? customerGeoPoint = data['location'];
+        LatLng? newCustomerLocation;
+        if (customerGeoPoint != null) {
+          newCustomerLocation = LatLng(customerGeoPoint.latitude, customerGeoPoint.longitude);
         }
 
-        setState(() {
-          _orderStatus = orderSnapshot['status'];
-          _customerLocation = newCustomerLocation;
-          _driverLocation = newDriverLocation;
-        });
+        LatLng? newDriverLocation;
+        if (data.containsKey('driverLocation')) {
+          GeoPoint? driverGeoPoint = data['driverLocation'];
+          if (driverGeoPoint != null) {
+            newDriverLocation = LatLng(driverGeoPoint.latitude, driverGeoPoint.longitude);
+          }
+        }
 
-        // Fetch and update route when driver location changes
+        if (mounted) {
+          setState(() {
+            _orderStatus = data['status'] ?? 'Pending';
+            _customerLocation = newCustomerLocation;
+            _driverLocation = newDriverLocation;
+          });
+        }
+
         if (_driverLocation != null) {
           _fetchRoute();
         }
 
-        // Move the map to the updated driver location
         if (_mapController != null && _driverLocation != null) {
           _mapController!.animateCamera(
             CameraUpdate.newLatLng(_driverLocation!),
@@ -70,6 +86,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       }
     });
   }
+
 
   /// Fetch Route using Google Directions API
   Future<void> _fetchRoute() async {
@@ -87,15 +104,17 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
         String encodedPolyline = data['routes'][0]['overview_polyline']['points'];
         List<LatLng> polylineCoordinates = _decodePolyline(encodedPolyline);
 
-        setState(() {
-          _polylines.clear();
-          _polylines.add(Polyline(
-            polylineId: const PolylineId("route"),
-            points: polylineCoordinates,
-            color: const Color(0xFFE91E63),
-            width: 6,
-          ));
-        });
+        if (mounted) {
+          setState(() {
+            _polylines.clear();
+            _polylines.add(Polyline(
+              polylineId: const PolylineId("route"),
+              points: polylineCoordinates,
+              color: const Color(0xFFE91E63),
+              width: 6,
+            ));
+          });
+        }
       }
     } else {
       print("Error fetching route: ${response.statusCode}");
@@ -214,12 +233,15 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   const SizedBox(height: 8),
                   Text(
                     "Order Status: $_orderStatus",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _orderStatus == "Completed" ? Colors.green : Colors.orange),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _orderStatus == "Completed" ? Colors.green : Colors.orange,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    "Your fuel is on the way! Track the progress above."
-                        "Our delivery partner may contact you",
+                    "Your fuel is on the way! Track the progress above. Our delivery partner may contact you.",
                     style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                 ],
