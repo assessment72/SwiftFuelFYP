@@ -14,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
 
-  /// 🔹 **Fuel Prices Per Liter**
   final List<Map<String, dynamic>> fuelPrices = [
     {'type': 'Petrol', 'price': 1.39, 'color': Colors.black},
     {'type': 'Diesel', 'price': 1.5, 'color': Colors.black},
@@ -42,11 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const SizedBox(height: 20),
                 _buildFuelPriceDisplay(),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 _buildFuelServiceInfo(),
-                const SizedBox(height: 40),
-                _buildOrderFuelButton(),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
+                _buildOrderFuelButton(context),
+                const SizedBox(height: 30),
               ],
             ),
           ),
@@ -56,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 🔹 **App Bar**
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -65,9 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
         'Refueling Made Easy, Anytime, Anywhere.',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 17,
+          fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
+        overflow: TextOverflow.ellipsis,
       ),
       centerTitle: true,
       automaticallyImplyLeading: false,
@@ -81,7 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 🔹 **Handles Logout**
   Future<void> _handleLogout() async {
     try {
       await FirebaseAuth.instance.signOut();
@@ -98,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// 🔹 **Fuel Price Display (Horizontal Cards)**
   Widget _buildFuelPriceDisplay() {
     return SizedBox(
       height: 90,
@@ -130,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 5),
                 Text(
                   '\£${fuel['price'].toStringAsFixed(2)} / L',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
@@ -144,7 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 🔹 **Fuel Service Info Section**
   Widget _buildFuelServiceInfo() {
     return Container(
       decoration: BoxDecoration(
@@ -158,8 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
+        children: const [
+          Text(
             '24/7 Fuel service, at petrol station rates.',
             style: TextStyle(
               color: Colors.black,
@@ -167,39 +163,30 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Enjoy our contactless fuel delivery straight to your car with flexible scheduling.',
             style: TextStyle(
               color: Colors.black54,
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE91E63),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 20,
-              ),
+            onPressed: null,
+            style: ButtonStyle(
+              backgroundColor: MaterialStatePropertyAll(Color(0xFFE91E63)),
+              foregroundColor: MaterialStatePropertyAll(Colors.white),
             ),
-            child: const Text('Discover SwiftFuel'),
+            child: Text('Discover SwiftFuel'),
           ),
         ],
       ),
     );
   }
 
-  /// 🔹 **Order Fuel Button**
-  Widget _buildOrderFuelButton() {
-    return Align(
-      alignment: Alignment.bottomLeft,
+  Widget _buildOrderFuelButton(BuildContext context) {
+    return Center(
       child: ElevatedButton(
         key: const Key('orderFuelButton'),
         onPressed: () {
@@ -212,17 +199,17 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: const Color(0xFFF2F2F2),
           padding: const EdgeInsets.symmetric(
             vertical: 20,
-            horizontal: 50,
+            horizontal: 30,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
           elevation: 10,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: const [
+            Text(
               'Order Fuel',
               style: TextStyle(
                 fontSize: 17,
@@ -230,17 +217,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFFE91E63),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.local_gas_station,
-                color: Colors.white,
-              ),
+            SizedBox(width: 10),
+            CircleAvatar(
+              backgroundColor: Color(0xFFE91E63),
+              radius: 16,
+              child: Icon(Icons.local_gas_station, size: 20, color: Colors.white),
             ),
           ],
         ),
@@ -248,11 +229,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 🔹 **Bottom Navigation Bar**
   Widget _buildBottomNavigationBar() {
     return ValueListenableBuilder<int>(
       valueListenable: _selectedIndex,
-      builder: (context, selectedIndex, child) {
+      builder: (context, selectedIndex, _) {
         return BottomNavigationBar(
           backgroundColor: Colors.white,
           selectedItemColor: Colors.black,
@@ -263,9 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: (index) {
             _selectedIndex.value = index;
             if (index == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PastOrdersScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PastOrdersScreen()));
             } else if (index == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const UserProfileScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfileScreen()));
             }
           },
           items: const [
