@@ -1,3 +1,11 @@
+/// Author: Fahad Riaz
+/// Description: This service handles all Firebase Authentication-related functionality
+/// for the SwiftFuel app. It supports registration of new users (customers only),
+/// login of existing users, and logout. It also stores and retrieves user data from
+/// the Firebase Firestore database, including role-based access information.
+
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

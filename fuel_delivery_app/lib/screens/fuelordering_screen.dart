@@ -1,3 +1,13 @@
+/// Author: Fahad Riaz
+/// Description: This file implements the Fuel Ordering Screen of the SwiftFuel app. It allows users to select a fuel type,
+/// input their vehicle number plate, and choose a delivery location using an interactive Google Map. Upon order confirmation,
+/// users are directed to the Stripe-powered payment system, and after successful payment, an order is created and sent to Firebase
+/// for further tracking and management.
+
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

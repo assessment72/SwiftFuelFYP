@@ -1,3 +1,13 @@
+/// Author: Fahad Riaz
+/// Description: This screen provides a user registration interface for the SwiftFuel app.
+/// It allows new users to register with email, password, and mobile number. The registration
+/// data is stored in Firebase Authentication and Firestore. The screen also includes
+/// input validation, password visibility toggle, redirection to login screen, and responsive UI.
+
+
+
+
+
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';

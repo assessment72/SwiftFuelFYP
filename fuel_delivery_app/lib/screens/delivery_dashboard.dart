@@ -1,3 +1,12 @@
+/// Author: Fahad Riaz
+/// Description: This file implements the Delivery Dashboard Screen for SwiftFuel, designed specifically for delivery drivers.
+/// It displays available unassigned fuel orders as well as orders assigned to the current driver. Drivers can accept orders,
+/// track and share their live location, and mark orders as completed. Firebase Firestore is used for real-time updates,
+/// while the Location package tracks the driver’s location.
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

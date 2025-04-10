@@ -1,3 +1,11 @@
+/// Author: Fahad Riaz
+/// Description: This is the main entry point of the SwiftFuel app. It initializes Firebase,
+/// sets up Stripe payment integration, and defines the main routes for navigation
+/// across the app such as login, registration, home, and fuel ordering screens.
+/// This file ensures the app is properly bootstrapped with necessary configurations.
+
+
+
 import 'package:flutter/material.dart';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'screens/login_screen.dart';

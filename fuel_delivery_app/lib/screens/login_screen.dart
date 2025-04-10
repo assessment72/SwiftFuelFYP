@@ -1,3 +1,12 @@
+/// Author: Fahad Riaz
+/// Description: This file defines the login screen for SwiftFuel, allowing users to authenticate using Firebase.
+/// Based on the user's role (customer or driver), the app navigates them to their respective dashboards.
+/// It includes Firebase Auth integration, password visibility toggle, loading state, and error handling via snackbars.
+
+
+
+
+
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';

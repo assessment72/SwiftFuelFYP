@@ -1,3 +1,12 @@
+/// Author: Fahad Riaz
+/// Description: This screen handles the payment process in the SwiftFuel app using Stripe integration.
+/// It creates a payment intent, initializes the Stripe payment sheet, and allows users to complete transactions.
+/// The screen dynamically displays the amount based on the fuel order and provides user feedback on payment status.
+
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;

@@ -1,3 +1,12 @@
+/// Author: Fahad Riaz
+/// Description: This file defines the HomeScreen for the SwiftFuel app, which acts as the main dashboard for customers.
+/// It displays current fuel prices, a brief overview of the fuel delivery service, and provides access to key features like fuel ordering.
+/// The screen also includes logout functionality and a bottom navigation bar for seamless movement between major parts of the app.
+
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'package:fuel_delivery_app/screens/user_profile_screen.dart';

@@ -1,3 +1,14 @@
+/// Author: Fahad Riaz
+/// Description: This screen allows users to view and manage their account information
+/// in the SwiftFuel app. It fetches user email and mobile number from Firebase Firestore,
+/// allows password updates using Firebase Authentication, and includes logout functionality.
+/// It also supports bottom navigation to Home and Past Orders screens. This screen
+/// enhances the user experience by providing essential account management features
+/// with consistent UI styling.
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/screens/home_screen.dart';
