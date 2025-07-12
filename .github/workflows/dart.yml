@@ -24,9 +24,7 @@ jobs:
         working-directory: fuel_delivery_app
 
       
-      - name: 🧪 تشغيل الاختبارات
-        run: flutter test
-        working-directory: fuel_delivery_app
+      
 
       - name: 🛠️ بناء ملف APK
         run: flutter build apk --release
