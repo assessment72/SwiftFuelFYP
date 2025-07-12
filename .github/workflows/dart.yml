@@ -11,28 +11,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout الشيفرة
+      - name: 🧾 جلب الشيفرة من المستودع
         uses: actions/checkout@v4
 
-      - name: تثبيت Flutter
+      - name: 🚀 تثبيت Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.1'  # عدّل للإصدار الذي تستخدمه
 
-      - name: تثبيت الحزم
+      - name: 📂 الدخول إلى مجلد المشروع
+        working-directory: fuel_app  # عدّل اسم المجلد حسب مشروعك
+        run: echo "الدخول إلى مجلد المشروع"
+
+      - name: 📦 تثبيت الحزم
         run: flutter pub get
+        working-directory: fuel_app
 
-      - name: تحليل المشروع
+      - name: 🔍 تحليل الشيفرة
         run: flutter analyze
+        working-directory: fuel_app
 
-      - name: تشغيل الاختبارات
+      - name: 🧪 تشغيل الاختبارات
         run: flutter test
+        working-directory: fuel_app
 
-      - name: بناء ملف APK
+      - name: 🛠️ بناء ملف APK
         run: flutter build apk --release
+        working-directory: fuel_app
 
-      - name: رفع APK كأداة قابلة للتحميل
+      - name: ⬆️ رفع APK كأداة قابلة للتحميل
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: fuel_app/build/app/outputs/flutter-apk/app-release.apk
