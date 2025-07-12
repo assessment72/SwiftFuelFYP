@@ -1,4 +1,4 @@
-name: Flutter CI
+name: fuel_delivery_app
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       - name: 🚀 تثبيت Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.1'  # عدّل للإصدار الذي تستخدمه
+          flutter-version: '3.22.1'  # متوافق مع Dart SDK ^3.5.3
 
       - name: 📦 تثبيت الحزم
         run: flutter pub get
