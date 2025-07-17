@@ -12,6 +12,8 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
+import 'package:moyasar/moyasar.dart'; // Import Moyasar
+import 'package:hyperpay_flutter/hyperpay_flutter.dart'; // Import HyperPay
 
 
 class PaymentScreen extends StatefulWidget {
@@ -27,12 +29,34 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   Map<String, dynamic>? paymentIntent;
+  String? _selectedPaymentMethod; // To hold the selected payment method
 
   Future<void> makePayment() async {
+    if (_selectedPaymentMethod == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a payment method.')));
+      return;
+    }
+
+    switch (_selectedPaymentMethod) {
+      case 'Stripe':
+        await _makeStripePayment();
+        break;
+      case 'Moyasar':
+        await _makeMoyasarPayment();
+        break;
+      case 'HyperPay':
+        await _makeHyperPayPayment();
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid payment method selected.')));
+    }
+  }
+
+  Future<void> _makeStripePayment() async {
     try {
       // Step 1: Create Payment Intent on the Server
       // Changed currency to 'sar' for Saudi Riyal
-      paymentIntent = await createPaymentIntent(widget.amount.toString(), 'sar');
+      paymentIntent = await _createStripePaymentIntent(widget.amount.toString(), 'sar');
 
       // Step 2: Initialize Payment Sheet
       await Stripe.instance.initPaymentSheet(
@@ -59,7 +83,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  Future<Map<String, dynamic>> createPaymentIntent(String amount, String currency) async {
+  Future<Map<String, dynamic>> _createStripePaymentIntent(String amount, String currency) async {
     try {
       // Stripe API Secret Key
       // NOTE: In a production environment, this secret key should NEVER be exposed in client-side code.
@@ -85,6 +109,46 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } catch (err) {
       throw Exception(err.toString());
     }
+  }
+
+  Future<void> _makeMoyasarPayment() async {
+    // TODO: Implement Moyasar payment logic here
+    // This will involve using the Moyasar SDK to initiate a payment.
+    // You will need to provide your Moyasar Publishable API Key.
+    // Example (conceptual):
+    // final result = await Moyasar.instance.startPayment(
+    //   amount: (widget.amount * 100).toInt(), // Amount in smallest currency unit
+    //   currency: 'SAR',
+    //   description: 'Fuel Order',
+    //   publishableApiKey: 'YOUR_MOYASAR_PUBLISHABLE_API_KEY',
+    //   // ... other parameters like payment methods (mada, credit card, stc pay)
+    // );
+    // if (result.status == PaymentStatus.paid) {
+    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Moyasar Payment Successful!')));
+    //   Navigator.pop(context, true);
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Moyasar Payment Failed: ${result.message}')));
+    // }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Moyasar payment integration is not yet complete.')));
+  }
+
+  Future<void> _makeHyperPayPayment() async {
+    // TODO: Implement HyperPay payment logic here
+    // This will involve using the HyperPay SDK to initiate a payment.
+    // HyperPay often requires a backend integration to create checkout IDs.
+    // Example (conceptual):
+    // final checkoutId = await _createHyperPayCheckoutId(); // Call your backend to get checkout ID
+    // final result = await Hyperpay.instance.startPayment(
+    //   checkoutId: checkoutId,
+    //   // ... other parameters
+    // );
+    // if (result.status == HyperpayPaymentStatus.success) {
+    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('HyperPay Payment Successful!')));
+    //   Navigator.pop(context, true);
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('HyperPay Payment Failed: ${result.message}')));
+    // }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('HyperPay payment integration is not yet complete.')));
   }
 
   @override
@@ -122,13 +186,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Stripe Logo
-              Image.asset(
-                'assets/stripelogo.png',
-                height: 80,
-              ),
-              const SizedBox(height: 20),
-
               // Payment Icon
               const Icon(Icons.payment, size: 100, color: Colors.black),
               const SizedBox(height: 20),
@@ -138,6 +195,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 'Total Amount: SAR ${widget.amount.toStringAsFixed(2)}', // Changed currency symbol
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+
+              // Payment Method Selection
+              DropdownButton<String>(
+                hint: const Text('Select Payment Method'),
+                value: _selectedPaymentMethod,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedPaymentMethod = newValue;
+                  });
+                },
+                items: <String>['Stripe', 'Moyasar', 'HyperPay']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 20),
 
