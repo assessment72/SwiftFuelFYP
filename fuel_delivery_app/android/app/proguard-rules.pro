@@ -5,7 +5,8 @@
 # They are automatically generated and updated by the Android Gradle plugin.
 
 # Keep rules for Stripe classes to prevent R8 from removing them
--keep class com.stripe.android.pushProvisioning.** { *; }
--keep class com.reactnativestripesdk.pushprovisioning.** { *; }
+-dontwarn com.stripe.**
+-keep class com.stripe.** { *; }
+-keep class com.reactnativestripesdk.** { *; }
 
 
