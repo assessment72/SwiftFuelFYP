@@ -12,6 +12,7 @@ import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'package:fuel_delivery_app/screens/user_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/screens/pastorders_screen.dart';
+import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -37,9 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: _buildAppBar(localizations),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -49,29 +52,29 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                _buildFuelPriceDisplay(),
+                _buildFuelPriceDisplay(localizations),
                 const SizedBox(height: 30),
-                _buildFuelServiceInfo(),
+                _buildFuelServiceInfo(localizations),
                 const SizedBox(height: 30),
-                _buildOrderFuelButton(context),
+                _buildOrderFuelButton(context, localizations),
                 const SizedBox(height: 30),
               ],
             ),
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(localizations),
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(AppLocalizations localizations) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
-      title: const Text(
-        'Refueling Made Easy, Anytime, Anywhere.',
+      title: Text(
+        localizations.refuelingMadeEasy,
         style: TextStyle(
-          color: Colors.black,
+          color: Theme.of(context).appBarTheme.titleTextStyle?.color,
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -82,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         IconButton(
           key: const Key('logoutButton'),
-          icon: const Icon(Icons.logout, color: Colors.black),
+          icon: Icon(Icons.logout, color: Theme.of(context).iconTheme.color),
           onPressed: _handleLogout,
         ),
       ],
@@ -90,22 +93,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
     try {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed out successfully')),
+          SnackBar(content: Text(localizations.signedOutSuccessfully)),
         );
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error signing out: $e')),
+        SnackBar(content: Text('${localizations.errorSigningOut}: $e')),
       );
     }
   }
 
-  Widget _buildFuelPriceDisplay() {
+  Widget _buildFuelPriceDisplay(AppLocalizations localizations) {
     return SizedBox(
       height: 90,
       child: ListView.separated(
@@ -117,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             width: 115,
             decoration: BoxDecoration(
-              color: const Color(0xFFE91E63).withOpacity(0.09),
+              color: Theme.of(context).cardColor.withOpacity(0.09),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: fuel['color'], width: 2),
             ),
@@ -126,7 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  fuel['type'],
+                  fuel['type'] == 'Petrol' ? localizations.petrol :
+                  fuel['type'] == 'Diesel' ? localizations.diesel :
+                  localizations.premium,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -135,11 +141,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '\£${fuel['price'].toStringAsFixed(2)} / L',
-                  style: const TextStyle(
+                  '£${fuel['price'].toStringAsFixed(2)} / L',
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
               ],
@@ -150,11 +156,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFuelServiceInfo() {
+  Widget _buildFuelServiceInfo(AppLocalizations localizations) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFDF9FB9), Color(0xFFF8D49D)],
+        gradient: LinearGradient(
+          colors: [Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.tertiary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -163,38 +169,38 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
-            '24/7 Fuel service, at petrol station rates.',
+            localizations.fuelService247,
             style: TextStyle(
-              color: Colors.black,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Enjoy our contactless fuel delivery straight to your car with flexible scheduling.',
+            localizations.contactlessDelivery,
             style: TextStyle(
-              color: Colors.black54,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 14,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: null,
             style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(Color(0xFFE91E63)),
-              foregroundColor: MaterialStatePropertyAll(Colors.white),
+              backgroundColor: MaterialStatePropertyAll(Theme.of(context).primaryColor),
+              foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.onPrimary),
             ),
-            child: Text('Discover SwiftFuel'),
+            child: Text(localizations.discoverSwiftFuel),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderFuelButton(BuildContext context) {
+  Widget _buildOrderFuelButton(BuildContext context, AppLocalizations localizations) {
     return Center(
       child: ElevatedButton(
         key: const Key('orderFuelButton'),
@@ -205,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF2F2F2),
+          backgroundColor: Theme.of(context).cardColor,
           padding: const EdgeInsets.symmetric(
             vertical: 20,
             horizontal: 30,
@@ -217,20 +223,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
-          children: const [
+          children: [
             Text(
-              'Order Fuel',
+              localizations.orderFuel,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             CircleAvatar(
-              backgroundColor: Color(0xFFE91E63),
+              backgroundColor: Theme.of(context).primaryColor,
               radius: 16,
-              child: Icon(Icons.local_gas_station, size: 20, color: Colors.white),
+              child: Icon(Icons.local_gas_station, size: 20, color: Theme.of(context).colorScheme.onPrimary),
             ),
           ],
         ),
@@ -238,14 +244,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(AppLocalizations localizations) {
     return ValueListenableBuilder<int>(
       valueListenable: _selectedIndex,
       builder: (context, selectedIndex, _) {
         return BottomNavigationBar(
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey,
+          backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+          selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+          unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
           currentIndex: selectedIndex,
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -257,13 +263,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfileScreen()));
             }
           },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(Icons.home), label: localizations.home),
+            BottomNavigationBarItem(icon: const Icon(Icons.shopping_cart), label: localizations.orders),
+            BottomNavigationBarItem(icon: const Icon(Icons.account_circle), label: localizations.account),
           ],
         );
       },
     );
   }
 }
+
+

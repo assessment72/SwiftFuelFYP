@@ -13,6 +13,7 @@ import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -40,12 +41,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Use theme color
           body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
@@ -62,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // Email Field
                     _buildTextField(
                       _emailController,
-                      'Email',
+                      localizations.email,
                       Icons.email,
                       false,
                       key: const Key('regEmailField'),
@@ -75,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       builder: (context, value, _) {
                         return _buildTextField(
                           _passwordController,
-                          'Password',
+                          localizations.password,
                           Icons.lock,
                           !value,
                           suffixIcon: IconButton(
@@ -91,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // Mobile Field
                     _buildTextField(
                       _mobileController,
-                      'Mobile Number',
+                      localizations.mobileNumber,
                       Icons.phone,
                       false,
                       keyboardType: TextInputType.phone,
@@ -107,9 +109,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Expanded(
                           child: TextButton(
                             onPressed: () => Navigator.pushNamed(context, '/login'),
-                            child: const Text(
-                              'Already have an account? Login here',
-                              style: TextStyle(fontSize: 9, color: Colors.black),
+                            child: Text(
+                              localizations.alreadyHaveAccount,
+                              style: TextStyle(fontSize: 9, color: Theme.of(context).textTheme.bodyLarge?.color),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -132,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: CircularProgressIndicator(
                                   color: Colors.white, strokeWidth: 2),
                             )
-                                : const Text('Register', style: TextStyle(fontSize: 18)),
+                                : Text(localizations.register, style: TextStyle(fontSize: 18)),
                           ),
                         ),
                       ],
@@ -153,6 +155,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
     final String mobileNumber = _mobileController.text.trim();
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
 
     if (email.isNotEmpty && password.isNotEmpty && mobileNumber.isNotEmpty) {
       User? user = await _authService.register(email, password);
@@ -169,14 +172,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         Navigator.pushNamed(context, '/login');
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration successful')));
+            SnackBar(content: Text(localizations.registrationSuccessful)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration failed. Try again.')));
+            SnackBar(content: Text(localizations.registrationFailed)));
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill all fields.')));
+          SnackBar(content: Text(localizations.pleaseFillAllFields)));
     }
 
     setState(() => _isLoading = false);
@@ -196,13 +199,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       key: key,
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: Theme.of(context).cardColor, // Use theme color
         borderRadius: BorderRadius.circular(50.0),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.grey),
+          Icon(icon, color: Theme.of(context).iconTheme.color ?? Colors.grey), // Use theme color
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
@@ -210,8 +213,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               obscureText: obscureText,
               keyboardType: keyboardType,
               inputFormatters: inputFormatters,
+              style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color), // Use theme color
               decoration: InputDecoration(
                 labelText: label,
+                labelStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color), // Use theme color
                 border: InputBorder.none,
                 prefixText: prefixText,
                 suffixIcon: suffixIcon,
@@ -223,3 +228,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
+

@@ -1,6 +1,6 @@
 /// Author: Fahad Riaz
 /// Description: This file defines the login screen for SwiftFuel, allowing users to authenticate using Firebase.
-/// Based on the user's role (customer or driver), the app navigates them to their respective dashboards.
+/// Based on the user\'s role (customer or driver), the app navigates them to their respective dashboards.
 /// It includes Firebase Auth integration, password visibility toggle, loading state, and error handling via snackbars.
 
 
@@ -12,6 +12,7 @@ import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/screens/home_screen.dart';
 import 'package:fuel_delivery_app/screens/delivery_dashboard.dart';
+import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -36,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: GestureDetector(
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Email Field
                     _buildTextField(
                       _emailController,
-                      'Email',
+                      localizations.email,
                       Icons.email,
                       false,
                       key: const Key('emailField'),
@@ -74,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       builder: (context, value, child) {
                         return _buildTextField(
                           _passwordController,
-                          'Password',
+                          localizations.password,
                           Icons.lock,
                           !value,
                           suffixIcon: IconButton(
@@ -97,8 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               Navigator.pushNamed(context, '/register');
                             },
-                            child: const Text(
-                              'Don\'t have an account? Create here',
+                            child: Text(
+                              localizations.dontHaveAccount,
                               style: TextStyle(fontSize: 10, color: Colors.black),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -122,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(
                                   color: Colors.white, strokeWidth: 2),
                             )
-                                : const Text('Login', style: TextStyle(fontSize: 18)),
+                                : Text(localizations.login, style: TextStyle(fontSize: 18)),
                           ),
                         ),
                       ],
@@ -143,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
 
     if (email.isNotEmpty && password.isNotEmpty) {
       var userData = await _authService.logIn(email, password);
@@ -156,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed')),
+          SnackBar(content: Text(localizations.loginFailed)),
         );
       }
     }
@@ -200,3 +203,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+

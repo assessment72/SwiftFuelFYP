@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'package:fuel_delivery_app/screens/fuelordering_screen.dart';
 import 'package:moyasar/moyasar.dart'; // Import Moyasar
 import 'package:hyperpay_flutter/hyperpay_flutter.dart'; // Import HyperPay
+import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 
 class PaymentScreen extends StatefulWidget {
@@ -31,9 +32,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Map<String, dynamic>? paymentIntent;
   String? _selectedPaymentMethod; // To hold the selected payment method
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedPaymentMethod = 'Stripe'; // Default to Stripe
+  }
+
   Future<void> makePayment() async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     if (_selectedPaymentMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a payment method.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.selectPaymentMethod)));
       return;
     }
 
@@ -48,11 +57,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
         await _makeHyperPayPayment();
         break;
       default:
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid payment method selected.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.invalidPaymentMethod)));
     }
   }
 
   Future<void> _makeStripePayment() async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
     try {
       // Step 1: Create Payment Intent on the Server
       // Changed currency to 'sar' for Saudi Riyal
@@ -74,12 +84,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // Step 3: Display Payment Sheet
       await Stripe.instance.presentPaymentSheet();
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment Successful!')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.paymentSuccessful)));
 
       // Navigate to Order Confirmation Page
       Navigator.pop(context, true); // Return true for successful payment
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Payment Failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizations.paymentFailed}: $e')));
     }
   }
 
@@ -112,64 +122,80 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> _makeMoyasarPayment() async {
-    // TODO: Implement Moyasar payment logic here
-    // This will involve using the Moyasar SDK to initiate a payment.
-    // You will need to provide your Moyasar Publishable API Key.
-    // Example (conceptual):
-    // final result = await Moyasar.instance.startPayment(
-    //   amount: (widget.amount * 100).toInt(), // Amount in smallest currency unit
-    //   currency: 'SAR',
-    //   description: 'Fuel Order',
-    //   publishableApiKey: 'YOUR_MOYASAR_PUBLISHABLE_API_KEY',
-    //   // ... other parameters like payment methods (mada, credit card, stc pay)
-    // );
-    // if (result.status == PaymentStatus.paid) {
-    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Moyasar Payment Successful!')));
-    //   Navigator.pop(context, true);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Moyasar Payment Failed: ${result.message}')));
-    // }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Moyasar payment integration is not yet complete.')));
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+    try {
+      // Replace with your actual Moyasar Publishable API Key
+      const String moyasarPublishableApiKey = 'pk_test_YOUR_MOYASAR_PUBLISHABLE_API_KEY';
+
+      final result = await Moyasar.instance.startPayment(
+        amount: (widget.amount * 100).toInt(), // Amount in smallest currency unit (halalas)
+        currency: 'SAR',
+        description: 'Fuel Order from SwiftFuel',
+        publishableApiKey: moyasarPublishableApiKey,
+        // You can specify payment methods here. Moyasar supports Mada, Credit Card, STC Pay.
+        // For example:
+        // paymentMethods: [PaymentMethod.mada, PaymentMethod.creditCard, PaymentMethod.stcPay],
+      );
+
+      if (result.status == PaymentStatus.paid) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.moyasarPaymentSuccessful)));
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizations.moyasarPaymentFailed}: ${result.message}')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizations.moyasarPaymentFailed}: $e')));
+    }
   }
 
   Future<void> _makeHyperPayPayment() async {
-    // TODO: Implement HyperPay payment logic here
-    // This will involve using the HyperPay SDK to initiate a payment.
-    // HyperPay often requires a backend integration to create checkout IDs.
-    // Example (conceptual):
-    // final checkoutId = await _createHyperPayCheckoutId(); // Call your backend to get checkout ID
-    // final result = await Hyperpay.instance.startPayment(
-    //   checkoutId: checkoutId,
-    //   // ... other parameters
-    // );
-    // if (result.status == HyperpayPaymentStatus.success) {
-    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('HyperPay Payment Successful!')));
-    //   Navigator.pop(context, true);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('HyperPay Payment Failed: ${result.message}')));
-    // }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('HyperPay payment integration is not yet complete.')));
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+    try {
+      // HyperPay usually requires a backend integration to create a checkout ID.
+      // This is a placeholder. You'll need to implement a backend endpoint
+      // that calls HyperPay's API to get a checkout ID.
+      // Example:
+      // final String checkoutId = await _getHyperPayCheckoutIdFromBackend();
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.hyperPayBackendRequired)));
+      // For now, we'll just show a message.
+      // If you have a checkout ID, you would proceed like this:
+      // final result = await Hyperpay.instance.startPayment(
+      //   checkoutId: checkoutId,
+      //   // ... other parameters like payment brand (VISA, MADA, etc.)
+      // );
+      // if (result.status == HyperpayPaymentStatus.success) {
+      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.hyperPayPaymentSuccessful)));
+      //   Navigator.pop(context, true);
+      // } else {
+      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizations.hyperPayPaymentFailed}: ${result.message}')));
+      // }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${localizations.hyperPayPaymentFailed}: $e')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text(
-          "Payment",
+        title: Text(
+          localizations.payment,
           style: TextStyle(
-            color: Colors.black,
+            color: Theme.of(context).appBarTheme.titleTextStyle?.color,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -187,20 +213,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Payment Icon
-              const Icon(Icons.payment, size: 100, color: Colors.black),
+              Icon(Icons.payment, size: 100, color: Theme.of(context).iconTheme.color),
               const SizedBox(height: 20),
 
               // Payment Amount
               Text(
-                'Total Amount: SAR ${widget.amount.toStringAsFixed(2)}', // Changed currency symbol
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                '${localizations.totalAmount}: SAR ${widget.amount.toStringAsFixed(2)}', // Changed currency symbol
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
 
               // Payment Method Selection
               DropdownButton<String>(
-                hint: const Text('Select Payment Method'),
+                hint: Text(localizations.selectPaymentMethod),
                 value: _selectedPaymentMethod,
                 onChanged: (String? newValue) {
                   setState(() {
@@ -211,9 +237,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
                   );
                 }).toList(),
+                dropdownColor: Theme.of(context).cardColor,
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               const SizedBox(height: 20),
 
@@ -221,8 +249,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ElevatedButton(
                 onPressed: () => makePayment(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE91E63),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                   ),
@@ -231,9 +259,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     horizontal: 50.0,
                   ),
                 ),
-                child: const Text(
-                  'Proceed to Pay',
-                  style: TextStyle(fontSize: 18),
+                child: Text(
+                  localizations.proceedToPay,
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
             ],

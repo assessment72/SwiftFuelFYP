@@ -15,6 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:location/location.dart';
 import 'package:fuel_delivery_app/screens/payment_screen.dart';
 import 'package:fuel_delivery_app/screens/ordertracking_screen.dart';
+import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 class FuelOrderingScreen extends StatefulWidget {
   @override
@@ -71,9 +72,11 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   }
 
   Future<void> _showOrderConfirmation() async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select a location')),
+        SnackBar(content: Text(localizations.fillAllFields)),
       );
       return;
     }
@@ -82,22 +85,22 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Your Order'),
+          title: Text(localizations.confirmYourOrder),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('🚗 Vehicle: ${_vehicleNumberController.text}'),
+              Text('${localizations.vehicle}: ${_vehicleNumberController.text}'),
               const SizedBox(height: 8),
-              Text('⛽ Fuel Type: ${_selectedFuelType.value}'),
+              Text('${localizations.fuelType}: ${_selectedFuelType.value}'),
               const SizedBox(height: 8),
-              Text('📍 Location: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})'),
+              Text('${localizations.location}: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})'),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+              child: Text(localizations.cancel, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -105,13 +108,13 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                 await _placeOrder();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE91E63),
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
               ),
-              child: const Text('Confirm'),
+              child: Text(localizations.confirm),
             ),
           ],
         );
@@ -120,9 +123,11 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   }
 
   Future<void> _placeOrder() async {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields and select a location')),
+        SnackBar(content: Text(localizations.fillAllFields)),
       );
       return;
     }
@@ -153,7 +158,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order placed successfully')),
+          SnackBar(content: Text(localizations.orderPlacedSuccessfully)),
         );
 
         Navigator.pushReplacement(
@@ -168,18 +173,20 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE91E63),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        title: const Text(
-          'Order Fuel',
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        title: Text(
+          localizations.orderFuel,
+          style: TextStyle(color: Theme.of(context).appBarTheme.titleTextStyle?.color, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: () {
             Navigator.pushNamed(context, '/home');
           },
@@ -192,13 +199,13 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-            const Padding(
-            padding: EdgeInsets.only(bottom: 10, top: 10),
+            Padding(
+            padding: const EdgeInsets.only(bottom: 10, top: 10),
             child: Text(
-              "Select Your Location",
+              localizations.selectYourLocation,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black87,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
             ),
             ),
@@ -210,7 +217,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                       margin: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.pink.shade200),
+                        border: Border.all(color: Theme.of(context).colorScheme.secondary),
                       ),
                     child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
@@ -242,27 +249,26 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                 ValueListenableBuilder<String?>(
                   valueListenable: _selectedFuelType,
                   builder: (context, fuelType, _) {
-                    return _buildDropdown(fuelType);
-                  },
-                ),
+                    return _buildDropdown(fuelType, localizations);
+                  },\n                ),
                 const SizedBox(height: 20),
 
-                _buildTextField(_vehicleNumberController, 'Vehicle Number Plate', key: const Key('vehicleField')),
+                _buildTextField(_vehicleNumberController, localizations.vehicleNumberPlate, key: const Key('vehicleField')),
                 const SizedBox(height: 20),
 
                 ElevatedButton(
                   key: const Key('placeOrderButton'),
                   onPressed: _showOrderConfirmation,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE91E63),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
-                    child: Text('Place Order', style: TextStyle(fontSize: 18)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
+                    child: Text(localizations.placeOrder, style: const TextStyle(fontSize: 18)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -274,15 +280,15 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     );
   }
 
-  Widget _buildDropdown(String? fuelType) {
+  Widget _buildDropdown(String? fuelType, AppLocalizations localizations) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(15.0),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 5,
             offset: const Offset(0, 3),
           ),
@@ -292,16 +298,16 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
       child: DropdownButtonFormField<String>(
         key: const Key('fuelDropdown'),
         value: fuelType,
-        hint: const Text(
-          "Select Fuel Type",
-          style: TextStyle(color: Colors.black54, fontSize: 16),
+        hint: Text(
+          localizations.selectFuelType,
+          style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 16),
         ),
-        items: ['Petrol', 'Diesel', 'Premium']
+        items: [localizations.petrol, localizations.diesel, localizations.premium]
             .map((fuel) => DropdownMenuItem(
           value: fuel,
           child: Text(
             fuel,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
           ),
         ))
             .toList(),
@@ -310,15 +316,32 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 8.0),
         ),
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
-        dropdownColor: Colors.white,
-        style: const TextStyle(fontSize: 16, color: Colors.black87),
+        icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).iconTheme.color),
+        dropdownColor: Theme.of(context).cardColor,
+        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
       ),
     );
   }
 
 
   Widget _buildTextField(TextEditingController controller, String hint, {Key? key}) {
-    return TextField(key: key, controller: controller, decoration: InputDecoration(hintText: hint));
+    return TextField(
+      key: key,
+      controller: controller,
+      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+        filled: true,
+        fillColor: Theme.of(context).cardColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 16.0),
+      ),
+    );
   }
 }
+
+
