@@ -31,13 +31,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> makePayment() async {
     try {
       // Step 1: Create Payment Intent on the Server
-      paymentIntent = await createPaymentIntent(widget.amount.toString(), 'gbp');
+      // Changed currency to 'sar' for Saudi Riyal
+      paymentIntent = await createPaymentIntent(widget.amount.toString(), 'sar');
 
       // Step 2: Initialize Payment Sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntent!['client_secret'],
           merchantDisplayName: 'SwiftFuel',
+          // Add billing details collection if needed for SAR payments
+          // billingDetailsCollectionConfiguration: const BillingDetailsCollectionConfiguration(
+          //   emailCollectionMode: CollectionMode.always,
+          //   addressCollectionMode: AddressCollectionMode.full,
+          // ),
         ),
       );
 
@@ -56,10 +62,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<Map<String, dynamic>> createPaymentIntent(String amount, String currency) async {
     try {
       // Stripe API Secret Key
+      // NOTE: In a production environment, this secret key should NEVER be exposed in client-side code.
+      // It should be handled securely on a backend server.
       const String secretKey = 'sk_test_51QvWmxLdbeQ0UiZd848BShgU6UUG53Is4KznCFh8qxpyVQ0Cbn9l5eAvNDi25uaDG90QXlP0VckstwBqEwihE0IR00kVM7zi4N';
 
-      // Convert amount to smallest currency unit (e.g., cents for USD)
-      int amountInCents = (double.parse(amount) * 100).toInt();
+      // Convert amount to smallest currency unit (e.g., halalas for SAR)
+      int amountInSmallestUnit = (double.parse(amount) * 100).toInt();
 
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
@@ -68,7 +76,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: {
-          'amount': amountInCents.toString(),
+          'amount': amountInSmallestUnit.toString(),
           'currency': currency,
         },
       );
@@ -127,7 +135,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
               // Payment Amount
               Text(
-                'Total Amount: \£${widget.amount.toStringAsFixed(2)}',
+                'Total Amount: SAR ${widget.amount.toStringAsFixed(2)}', // Changed currency symbol
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -160,3 +168,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
 }
+
+
