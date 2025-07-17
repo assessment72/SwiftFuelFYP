@@ -1,0 +1,27 @@
+{
+    "@@locale": "en",
+    "appTitle": "SwiftFuel",
+    "login": "Login",
+    "register": "Register",
+    "home": "Home",
+    "orderFuel": "Order Fuel",
+    "selectYourLocation": "Select Your Location",
+    "selectFuelType": "Select Fuel Type",
+    "vehicleNumberPlate": "Vehicle Number Plate",
+    "placeOrder": "Place Order",
+    "confirmYourOrder": "Confirm Your Order",
+    "vehicle": "Vehicle",
+    "fuelType": "Fuel Type",
+    "location": "Location",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "payment": "Payment",
+    "totalAmount": "Total Amount",
+    "proceedToPay": "Proceed to Pay",
+    "paymentSuccessful": "Payment Successful!",
+    "paymentFailed": "Payment Failed: {error}",
+    "orderPlacedSuccessfully": "Order placed successfully",
+    "pleaseFillAllFields": "Please fill all fields and select a location"
+}
+
+

@@ -1,0 +1,28 @@
+
+{
+    "@@locale": "ar",
+    "appTitle": "سويفت فيول",
+    "login": "تسجيل الدخول",
+    "register": "تسجيل",
+    "home": "الرئيسية",
+    "orderFuel": "اطلب وقود",
+    "selectYourLocation": "اختر موقعك",
+    "selectFuelType": "اختر نوع الوقود",
+    "vehicleNumberPlate": "رقم لوحة المركبة",
+    "placeOrder": "إتمام الطلب",
+    "confirmYourOrder": "تأكيد طلبك",
+    "vehicle": "المركبة",
+    "fuelType": "نوع الوقود",
+    "location": "الموقع",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "payment": "الدفع",
+    "totalAmount": "المبلغ الإجمالي",
+    "proceedToPay": "متابعة للدفع",
+    "paymentSuccessful": "تم الدفع بنجاح!",
+    "paymentFailed": "فشل الدفع: {error}",
+    "orderPlacedSuccessfully": "تم إرسال الطلب بنجاح",
+    "pleaseFillAllFields": "يرجى ملء جميع الحقول واختيار موقع"
+}
+
+
