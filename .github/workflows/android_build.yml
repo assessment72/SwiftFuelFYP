@@ -22,6 +22,7 @@ jobs:
         with:
           flutter-version: '3.x'
           channel: 'stable'
+          cache: true # Add caching for Flutter SDK
 
       - name: Install dependencies
         run: flutter pub get
