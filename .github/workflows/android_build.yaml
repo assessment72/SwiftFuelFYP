@@ -1,0 +1,37 @@
+name: Flutter Android CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: fuel_delivery_app
+
+      - name: Build Android APK
+        run: flutter build apk --release
+        working-directory: fuel_delivery_app
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: fuel_delivery_app/build/app/outputs/flutter-apk/app-release.apk
+
+
