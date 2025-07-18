@@ -18,7 +18,7 @@ import 'package:fuel_delivery_app/generated/app_localizations.dart';
 import 'package:fuel_delivery_app/screens/support_chat_screen.dart';
 import 'package:fuel_delivery_app/screens/promotions_screen.dart';
 
-void main() async { {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Stripe.publishableKey = const String.fromEnvironment("STRIPE_PUBLISHABLE_KEY"); // Load from environment variable for security
@@ -28,7 +28,6 @@ void main() async { {
   await notificationService.initialize();
 
   runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override
