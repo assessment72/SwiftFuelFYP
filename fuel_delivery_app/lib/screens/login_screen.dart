@@ -148,20 +148,38 @@ class _LoginScreenState extends State<LoginScreen> {
     final AppLocalizations localizations = AppLocalizations.of(context)!;
 
     if (email.isNotEmpty && password.isNotEmpty) {
-      var userData = await _authService.logIn(email, password);
-      if (userData != null) {
-        if (userData['role'] == 'customer') {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-        } else if (userData['role'] == 'driver') {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()));
+      try {
+        var userData = await _authService.logIn(email, password);
+        if (userData != null) {
+          if (userData["role"] == "customer") {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+          } else if (userData["role"] == "driver") {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()));
+          }
         }
-      } else {
+      } on FirebaseAuthException catch (e) {
+        String message;
+        if (e.code == "user-not-found") {
+          message = localizations.userNotFound;
+        } else if (e.code == "wrong-password") {
+          message = localizations.wrongPassword;
+        } else {
+          message = localizations.loginFailed;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(localizations.loginFailed)),
         );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.pleaseFillAllFields)),
+      );
     }
 
     setState(() => _isLoading = false);

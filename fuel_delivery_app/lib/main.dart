@@ -15,11 +15,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fuel_delivery_app/generated/app_localizations.dart';
+import 'package:fuel_delivery_app/screens/support_chat_screen.dart';
+import 'package:fuel_delivery_app/screens/promotions_screen.dart';
 
-void main() async {
+void main() async { {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Stripe.publishableKey = "pk_test_51QvWmxLdbeQ0UiZd1jqwZ2vPWtDNJqVAi3advQvTrixYOZYDxmBVDTpdxIaN9C01HddNAbTeEtrsMMOcLTvjlygO00dGcWbyqv";
+  Stripe.publishableKey = const String.fromEnvironment("STRIPE_PUBLISHABLE_KEY"); // Load from environment variable for security
+
+  // Initialize Notification Service
+  NotificationService notificationService = NotificationService();
+  await notificationService.initialize();
 
   runApp(MyApp());
 }
@@ -71,6 +77,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(),
         '/orderfuel': (context) => FuelOrderingScreen(),
+        '/supportchat': (context) => SupportChatScreen(),
+        '/promotions': (context) => PromotionsScreen(),
 
       },
     );

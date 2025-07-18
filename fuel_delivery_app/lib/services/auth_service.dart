@@ -27,9 +27,10 @@ class AuthService {
         });
       }
       return user;
+    } on FirebaseAuthException catch (e) {
+      throw e; // Rethrow the specific Firebase Auth exception
     } catch (e) {
-      print('Error: $e');
-      return null;
+      throw Exception("An unknown error occurred during registration: $e"); // Rethrow a generic exception for other errors
     }
   }
 
@@ -46,9 +47,10 @@ class AuthService {
         }
       }
       return null;
+    } on FirebaseAuthException catch (e) {
+      throw e; // Rethrow the specific Firebase Auth exception
     } catch (e) {
-      print('Error: $e');
-      return null;
+      throw Exception("An unknown error occurred during login: $e"); // Rethrow a generic exception for other errors
     }
   }
 

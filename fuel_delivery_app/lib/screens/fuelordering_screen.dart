@@ -29,6 +29,8 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   final TextEditingController _vehicleNumberController = TextEditingController();
   final ValueNotifier<String?> _selectedFuelType = ValueNotifier<String?>(null);
   final ValueNotifier<LatLng?> _selectedLocation = ValueNotifier<LatLng?>(null);
+  final ValueNotifier<DateTime?> _selectedDate = ValueNotifier<DateTime?>(null);
+  final ValueNotifier<TimeOfDay?> _selectedTime = ValueNotifier<TimeOfDay?>(null);
 
   GoogleMapController? _mapController;
 
@@ -52,13 +54,23 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     bool _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) return;
+      if (!_serviceEnabled) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.locationServiceDisabled)),
+        );
+        return;
+      }
     }
 
     PermissionStatus _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) return;
+      if (_permissionGranted != PermissionStatus.granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.locationPermissionDenied)),
+        );
+        return;
+      }
     }
 
     LocationData _locationData = await location.getLocation();
@@ -74,7 +86,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
   Future<void> _showOrderConfirmation() async {
     final AppLocalizations localizations = AppLocalizations.of(context)!;
 
-    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
+    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty || _selectedDate.value == null || _selectedTime.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.fillAllFields)),
       );
@@ -90,11 +102,15 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${localizations.vehicle}: ${_vehicleNumberController.text}'),
+              Text("${localizations.vehicle}: ${_vehicleNumberController.text}"),
               const SizedBox(height: 8),
-              Text('${localizations.fuelType}: ${_selectedFuelType.value}'),
+              Text("${localizations.fuelType}: ${_selectedFuelType.value}"),
               const SizedBox(height: 8),
-              Text('${localizations.location}: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})'),
+              Text("${localizations.location}: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})"),
+              const SizedBox(height: 8),
+              Text("${localizations.deliveryDate}: ${_selectedDate.value!.toLocal().toString().split(" ")[0]}"),
+              const SizedBox(height: 8),
+              Text("${localizations.deliveryTime}: ${_selectedTime.value!.format(context)}"),
             ],
           ),
           actions: [
@@ -152,8 +168,9 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           'fuelType': _selectedFuelType.value,
           'vehicleNumber': _vehicleNumberController.text,
           'location': GeoPoint(_selectedLocation.value!.latitude, _selectedLocation.value!.longitude),
-          'orderedAt': Timestamp.now(),
-          'status': 'Pending',
+          \'orderedAt			: Timestamp.now(),
+          \'deliveryDate		: _selectedDate.value != null ? Timestamp.fromDate(_selectedDate.value!) : null,
+          \'deliveryTime		: _selectedTime.value != null ? _selectedTime.value!.format(context) : null,        'status': 'Pending',
           'assignedDriverId': null,
         });
 
@@ -253,11 +270,28 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
                   },\n                ),
                 const SizedBox(height: 20),
 
-                _buildTextField(_vehicleNumberController, localizations.vehicleNumberPlate, key: const Key('vehicleField')),
+                _buildTextField(_vehicleNumberController, localizations.vehicleNumberPlate, key: const Key(\'vehicleField\')),
                 const SizedBox(height: 20),
 
-                ElevatedButton(
-                  key: const Key('placeOrderButton'),
+                // Date Picker
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _selectedDate,
+                  builder: (context, date, _) {
+                    return _buildDatePicker(date, localizations);
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Time Picker
+                ValueListenableBuilder<TimeOfDay?>(
+                  valueListenable: _selectedTime,
+                  builder: (context, time, _) {
+                    return _buildTimePicker(time, localizations);
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                ElevatedButton(                 key: const Key('placeOrderButton'),
                   onPressed: _showOrderConfirmation,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
@@ -302,7 +336,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           localizations.selectFuelType,
           style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 16),
         ),
-        items: [localizations.petrol, localizations.diesel, localizations.premium]
+        items: [localizations.petrol, localizations.diesel, localizations.premium, localizations.superPetrol, localizations.kerosene]
             .map((fuel) => DropdownMenuItem(
           value: fuel,
           child: Text(
@@ -343,5 +377,96 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     );
   }
 }
+
+
+
+
+  Widget _buildDatePicker(DateTime? selectedDate, AppLocalizations localizations) {
+    return GestureDetector(
+      onTap: () async {
+        final DateTime? picked = await showDatePicker(
+          context: context,
+          initialDate: selectedDate ?? DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2101),
+        );
+        if (picked != null && picked != selectedDate) {
+          _selectedDate.value = picked;
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(15.0),
+          border: Border.all(color: Theme.of(context).dividerColor),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, color: Theme.of(context).iconTheme.color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                selectedDate == null
+                    ? localizations.selectDeliveryDate
+                    : "${localizations.deliveryDate}: ${selectedDate.toLocal().toString().split(\' \')[0]}",
+                style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimePicker(TimeOfDay? selectedTime, AppLocalizations localizations) {
+    return GestureDetector(
+      onTap: () async {
+        final TimeOfDay? picked = await showTimePicker(
+          context: context,
+          initialTime: selectedTime ?? TimeOfDay.now(),
+        );
+        if (picked != null && picked != selectedTime) {
+          _selectedTime.value = picked;
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(15.0),
+          border: Border.all(color: Theme.of(context).dividerColor),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.access_time, color: Theme.of(context).iconTheme.color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                selectedTime == null
+                    ? localizations.selectDeliveryTime
+                    : "${localizations.deliveryTime}: ${selectedTime.format(context)}",
+                style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 

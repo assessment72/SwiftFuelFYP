@@ -16,6 +16,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class OrderTrackingScreen extends StatefulWidget {
   final String orderId;
@@ -31,9 +32,9 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   LatLng? _customerLocation;
   LatLng? _driverLocation;
   String _orderStatus = "Pending";
-  Set<Polyline> _polylines = {};
-  String _mapStyle = '';
+  Set<Polyline> _polylines = {}  String _mapStyle = \'\';
   late final StreamSubscription<DocumentSnapshot> _orderSubscription;
+  double _rating = 0.0; // New variable for rating
 
   String googleMapsApiKey = "AIzaSyAoAkKeq7jfY5Z8xic5KTXp_Ex30u25ijw";
 
@@ -254,6 +255,39 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                     "Your fuel is on the way! Track the progress above. Our delivery partner may contact you.",
                     style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
+                  const SizedBox(height: 20),
+                  _orderStatus == "Completed" ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Rate Your Experience:",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      const SizedBox(height: 10),
+                      RatingBar.builder(
+                        initialRating: _rating,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        itemBuilder: (context, _) => const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          setState(() {
+                            _rating = rating;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: _submitRating,
+                        child: const Text("Submit Rating"),
+                      ),
+                    ],
+                  ) : Container(),
                 ],
               ),
             ),
@@ -263,3 +297,27 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
     );
   }
 }
+
+
+  Future<void> _submitRating() async {
+    if (_rating > 0) {
+      try {
+        await FirebaseFirestore.instance.collection("orders").doc(widget.orderId).update({
+          "rating": _rating,
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Rating submitted successfully!")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to submit rating: $e")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please provide a rating.")),
+      );
+    }
+  }
+
+

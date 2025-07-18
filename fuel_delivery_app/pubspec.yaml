@@ -40,7 +40,7 @@ dependencies:
   flutter_stripe: ^11.4.0
   http: ^1.3.0
   intl: ^0.20.2
-  moyasar: ^1.0.1 # For Moyasar payment gateway
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -115,4 +115,13 @@ flutter:
 
 
 
+
+
+  firebase_messaging: ^15.0.2 # For push notifications
+
+
+  flutter_local_notifications: ^17.1.2 # For local notifications
+
+
+  flutter_rating_bar: ^4.0.1 # For rating functionality
 
