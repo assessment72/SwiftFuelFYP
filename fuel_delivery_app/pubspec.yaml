@@ -74,6 +74,8 @@ flutter_launcher_icons:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
+
   assets:
     - assets/logo.png
     - assets/stripelogo.png
