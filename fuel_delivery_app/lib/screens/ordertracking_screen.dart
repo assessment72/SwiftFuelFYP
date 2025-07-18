@@ -32,7 +32,8 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   LatLng? _customerLocation;
   LatLng? _driverLocation;
   String _orderStatus = "Pending";
-  Set<Polyline> _polylines = {}  String _mapStyle = \'\';
+  Set<Polyline> _polylines = {};
+  String _mapStyle = '';
   late final StreamSubscription<DocumentSnapshot> _orderSubscription;
   double _rating = 0.0; // New variable for rating
 

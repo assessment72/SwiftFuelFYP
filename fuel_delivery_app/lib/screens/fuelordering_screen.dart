@@ -1,43 +1,32 @@
-/// Author: Fahad Riaz
-/// Description: This file implements the Fuel Ordering Screen of the SwiftFuel app. It allows users to select a fuel type,
-/// input their vehicle number plate, and choose a delivery location using an interactive Google Map. Upon order confirmation,
-/// users are directed to the Stripe-powered payment system, and after successful payment, an order is created and sent to Firebase
-/// for further tracking and management.
-
-
-
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:location/location.dart';
-import 'package:fuel_delivery_app/screens/payment_screen.dart';
-import 'package:fuel_delivery_app/screens/ordertracking_screen.dart';
 import 'package:fuel_delivery_app/generated/app_localizations.dart';
 
 class FuelOrderingScreen extends StatefulWidget {
+  const FuelOrderingScreen({super.key});
+
   @override
-  _FuelOrderingScreenState createState() => _FuelOrderingScreenState();
+  State<FuelOrderingScreen> createState() => _FuelOrderingScreenState();
 }
 
 class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   final TextEditingController _vehicleNumberController = TextEditingController();
   final ValueNotifier<String?> _selectedFuelType = ValueNotifier<String?>(null);
   final ValueNotifier<LatLng?> _selectedLocation = ValueNotifier<LatLng?>(null);
   final ValueNotifier<DateTime?> _selectedDate = ValueNotifier<DateTime?>(null);
   final ValueNotifier<TimeOfDay?> _selectedTime = ValueNotifier<TimeOfDay?>(null);
 
-  GoogleMapController? _mapController;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
-    _getUserCurrentLocation();
+    _getCurrentLocation();
   }
 
   @override
@@ -45,91 +34,125 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     _vehicleNumberController.dispose();
     _selectedFuelType.dispose();
     _selectedLocation.dispose();
-    _mapController?.dispose();
+    _selectedDate.dispose();
+    _selectedTime.dispose();
     super.dispose();
   }
 
-  Future<void> _getUserCurrentLocation() async {
-    Location location = Location();
-    bool _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.locationServiceDisabled)),
+      );
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.locationServiceDisabled)),
+          SnackBar(content: Text(AppLocalizations.of(context)!.locationPermissionDenied)),
         );
         return;
       }
     }
 
-    PermissionStatus _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.locationPermissionDenied)),
-        );
-        return;
-      }
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.locationPermissionDeniedForever)),
+      );
+      return;
     }
 
-    LocationData _locationData = await location.getLocation();
-    _selectedLocation.value = LatLng(_locationData.latitude!, _locationData.longitude!);
-
-    _mapController?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: _selectedLocation.value!, zoom: 15),
-      ),
-    );
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    _selectedLocation.value = LatLng(position.latitude, position.longitude);
   }
 
-  Future<void> _showOrderConfirmation() async {
+  Future<void> _selectLocationOnMap() async {
+    // Implement map selection logic here
+    // For now, we'll just use the current location
+  }
+
+  Future<void> _placeOrder() async {
     final AppLocalizations localizations = AppLocalizations.of(context)!;
 
-    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty || _selectedDate.value == null || _selectedTime.value == null) {
+    if (_selectedFuelType.value == null ||
+        _vehicleNumberController.text.isEmpty ||
+        _selectedLocation.value == null ||
+        _selectedDate.value == null ||
+        _selectedTime.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.fillAllFields)),
       );
       return;
     }
 
+    User? user = _auth.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.loginRequired)),
+      );
+      return;
+    }
+
+    try {
+      DocumentReference orderRef = await _firestore.collection('orders').add({
+        'userId': user.uid,
+        'fuelType': _selectedFuelType.value,
+        'vehicleNumber': _vehicleNumberController.text,
+        'location': GeoPoint(_selectedLocation.value!.latitude, _selectedLocation.value!.longitude),
+        'orderedAt': Timestamp.now(),
+        'deliveryDate': _selectedDate.value != null ? Timestamp.fromDate(_selectedDate.value!) : null,
+        'deliveryTime': _selectedTime.value != null ? _selectedTime.value!.format(context) : null,
+        'status': 'Pending',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.orderPlacedSuccessfully)),
+      );
+
+      // Clear form fields after successful order
+      _selectedFuelType.value = null;
+      _vehicleNumberController.clear();
+      _selectedLocation.value = null;
+      _selectedDate.value = null;
+      _selectedTime.value = null;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${localizations.orderPlacementFailed}: $e')),
+      );
+    }
+  }
+
+  void _showOrderConfirmation() {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(localizations.confirmYourOrder),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("${localizations.vehicle}: ${_vehicleNumberController.text}"),
-              const SizedBox(height: 8),
-              Text("${localizations.fuelType}: ${_selectedFuelType.value}"),
-              const SizedBox(height: 8),
-              Text("${localizations.location}: (${_selectedLocation.value!.latitude.toStringAsFixed(6)}, ${_selectedLocation.value!.longitude.toStringAsFixed(6)})"),
-              const SizedBox(height: 8),
-              Text("${localizations.deliveryDate}: ${_selectedDate.value!.toLocal().toString().split(" ")[0]}"),
-              const SizedBox(height: 8),
-              Text("${localizations.deliveryTime}: ${_selectedTime.value!.format(context)}"),
-            ],
-          ),
-          actions: [
+          title: Text(localizations.confirmOrder),
+          content: Text(localizations.confirmOrderMessage),
+          actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(localizations.cancel, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(localizations.cancel),
             ),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 Navigator.of(context).pop();
-                await _placeOrder();
+                _placeOrder();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-              ),
               child: Text(localizations.confirm),
             ),
           ],
@@ -138,248 +161,44 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
     );
   }
 
-  Future<void> _placeOrder() async {
-    final AppLocalizations localizations = AppLocalizations.of(context)!;
-
-    if (_selectedFuelType.value == null || _selectedLocation.value == null || _vehicleNumberController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.fillAllFields)),
-      );
-      return;
-    }
-
-    double orderAmount = 50.0;
-    bool paymentSuccessful = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentScreen(
-          fuelType: _selectedFuelType.value!,
-          vehicleNumber: _vehicleNumberController.text,
-          amount: orderAmount,
+  Widget _buildTextField(TextEditingController controller, String labelText, {Key? key}) {
+    return TextField(
+      key: key,
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      ),
-    );
-
-    if (paymentSuccessful) {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        DocumentReference orderRef = await _firestore.collection('orders').add({
-          'userId': user.uid,
-          'fuelType': _selectedFuelType.value,
-          'vehicleNumber': _vehicleNumberController.text,
-          'location': GeoPoint(_selectedLocation.value!.latitude, _selectedLocation.value!.longitude),
-          \'orderedAt			: Timestamp.now(),
-          \'deliveryDate		: _selectedDate.value != null ? Timestamp.fromDate(_selectedDate.value!) : null,
-          \'deliveryTime		: _selectedTime.value != null ? _selectedTime.value!.format(context) : null,        'status': 'Pending',
-          'assignedDriverId': null,
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.orderPlacedSuccessfully)),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderTrackingScreen(orderId: orderRef.id),
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations localizations = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        elevation: 0,
-        title: Text(
-          localizations.orderFuel,
-          style: TextStyle(color: Theme.of(context).appBarTheme.titleTextStyle?.color, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
-          onPressed: () {
-            Navigator.pushNamed(context, '/home');
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-            Padding(
-            padding: const EdgeInsets.only(bottom: 10, top: 10),
-            child: Text(
-              localizations.selectYourLocation,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-            ),
-                ValueListenableBuilder<LatLng?>(
-                  valueListenable: _selectedLocation,
-                  builder: (context, location, _) {
-                    return Container(
-                      height: 300,
-                      margin: const EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Theme.of(context).colorScheme.secondary),
-                      ),
-                    child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                      child: location == null
-                          ? const Center(child: CircularProgressIndicator())
-                          : GoogleMap(
-                        initialCameraPosition: CameraPosition(target: location, zoom: 15),
-                        onMapCreated: (controller) {
-                          _mapController = controller;
-                          _getUserCurrentLocation();
-                        },
-                        onTap: (LatLng loc) {
-                          _selectedLocation.value = loc;
-                        },
-                        markers: location != null
-                            ? {
-                          Marker(markerId: const MarkerId("selected-location"), position: location),
-                        }
-                            : {},
-                        myLocationEnabled: true,
-                        myLocationButtonEnabled: true,
-                      ),
-                    )
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                ValueListenableBuilder<String?>(
-                  valueListenable: _selectedFuelType,
-                  builder: (context, fuelType, _) {
-                    return _buildDropdown(fuelType, localizations);
-                  },\n                ),
-                const SizedBox(height: 20),
-
-                _buildTextField(_vehicleNumberController, localizations.vehicleNumberPlate, key: const Key(\'vehicleField\')),
-                const SizedBox(height: 20),
-
-                // Date Picker
-                ValueListenableBuilder<DateTime?>(
-                  valueListenable: _selectedDate,
-                  builder: (context, date, _) {
-                    return _buildDatePicker(date, localizations);
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Time Picker
-                ValueListenableBuilder<TimeOfDay?>(
-                  valueListenable: _selectedTime,
-                  builder: (context, time, _) {
-                    return _buildTimePicker(time, localizations);
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                ElevatedButton(                 key: const Key('placeOrderButton'),
-                  onPressed: _showOrderConfirmation,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
-                    child: Text(localizations.placeOrder, style: const TextStyle(fontSize: 18)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
+        filled: true,
+        fillColor: Theme.of(context).cardColor,
       ),
     );
   }
 
   Widget _buildDropdown(String? fuelType, AppLocalizations localizations) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(15.0),
-        border: Border.all(color: Theme.of(context).dividerColor),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-      child: DropdownButtonFormField<String>(
-        key: const Key('fuelDropdown'),
-        value: fuelType,
-        hint: Text(
-          localizations.selectFuelType,
-          style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 16),
-        ),
-        items: [localizations.petrol, localizations.diesel, localizations.premium, localizations.superPetrol, localizations.kerosene]
-            .map((fuel) => DropdownMenuItem(
-          value: fuel,
-          child: Text(
-            fuel,
-            style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
-          ),
-        ))
-            .toList(),
-        onChanged: (value) => _selectedFuelType.value = value,
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-        ),
-        icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).iconTheme.color),
-        dropdownColor: Theme.of(context).cardColor,
-        style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
-      ),
-    );
-  }
-
-
-  Widget _buildTextField(TextEditingController controller, String hint, {Key? key}) {
-    return TextField(
-      key: key,
-      controller: controller,
-      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+    return DropdownButtonFormField<String>(
+      value: fuelType,
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+        labelText: localizations.fuelType,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
         filled: true,
         fillColor: Theme.of(context).cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15.0),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 16.0),
       ),
+      items: <String>['Petrol', 'Diesel', 'Premium']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        _selectedFuelType.value = newValue;
+      },
     );
   }
-}
-
-
-
 
   Widget _buildDatePicker(DateTime? selectedDate, AppLocalizations localizations) {
     return GestureDetector(
@@ -388,17 +207,17 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           context: context,
           initialDate: selectedDate ?? DateTime.now(),
           firstDate: DateTime.now(),
-          lastDate: DateTime(2101),
+          lastDate: DateTime.now().add(const Duration(days: 30)),
         );
         if (picked != null && picked != selectedDate) {
           _selectedDate.value = picked;
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+        padding: const EdgeInsets.all(15.0),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(10.0),
           border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
@@ -409,14 +228,14 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           ],
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Icon(Icons.calendar_today, color: Theme.of(context).iconTheme.color),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 selectedDate == null
                     ? localizations.selectDeliveryDate
-                    : "${localizations.deliveryDate}: ${selectedDate.toLocal().toString().split(\' \')[0]}",
+                    : "${localizations.deliveryDate}: ${selectedDate.toLocal().toString().split(' ')[0]}",
                 style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
             ),
@@ -438,10 +257,10 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+        padding: const EdgeInsets.all(15.0),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(10.0),
           border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [
             BoxShadow(
@@ -452,7 +271,7 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
           ],
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Icon(Icons.access_time, color: Theme.of(context).iconTheme.color),
             const SizedBox(width: 10),
             Expanded(
@@ -468,5 +287,65 @@ class _FuelOrderingScreenState extends State<FuelOrderingScreen> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(localizations.fuelOrdering),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: <Widget>[
+            ValueListenableBuilder<String?>(
+              valueListenable: _selectedFuelType,
+              builder: (context, fuelType, _) {
+                return _buildDropdown(fuelType, localizations);
+              },
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              _vehicleNumberController,
+              localizations.vehicleNumberPlate,
+              key: const Key('vehicleField'),
+            ),
+            const SizedBox(height: 20),
+            ValueListenableBuilder<DateTime?>(
+              valueListenable: _selectedDate,
+              builder: (context, date, _) {
+                return _buildDatePicker(date, localizations);
+              },
+            ),
+            const SizedBox(height: 20),
+            ValueListenableBuilder<TimeOfDay?>(
+              valueListenable: _selectedTime,
+              builder: (context, time, _) {
+                return _buildTimePicker(time, localizations);
+              },
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _showOrderConfirmation,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+              ),
+              child: Text(localizations.placeOrder, style: const TextStyle(fontSize: 18)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
