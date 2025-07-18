@@ -52,7 +52,7 @@ android {
     }
 }
 
-flutter {
+dependencies {
     // Import the Firebase BoM to manage Firebase SDK versions
     implementation platform("com.google.firebase:firebase-bom:33.4.0")
 
@@ -66,5 +66,5 @@ flutter {
     implementation "com.stripe:stripe-android:20.0.0"
 }
 
-
+flutter {
 
