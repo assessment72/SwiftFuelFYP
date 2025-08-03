@@ -12,7 +12,12 @@
           "package_name": "com.fahad.fueldeliveryapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1099145478603-lto1flc1ddgfg6eed15ncei65ge65lff.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyATHHdxhmtYoXeR1u-BWAfWVbLtPu99t2g"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1099145478603-lto1flc1ddgfg6eed15ncei65ge65lff.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
