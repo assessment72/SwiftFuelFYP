@@ -1,11 +1,7 @@
 /// Author: Fahad Riaz
 /// Description: This file defines the login screen for SwiftFuel, allowing users to authenticate using Firebase.
-/// Based on the user\\'s role (customer or driver), the app navigates them to their respective dashboards.
+/// Based on the user's role (customer or driver), the app navigates them to their respective dashboards.
 /// It includes Firebase Auth integration, password visibility toggle, loading state, and error handling via snackbars.
-
-
-
-
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
@@ -54,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const SizedBox(height: 50),
                     Image.asset(
-                      \'assets/logo.png\',
+                      'assets/logo.png',
                       height: 200,
                     ),
                     const SizedBox(height: 30),
@@ -62,10 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Email Field
                     _buildTextField(
                       _emailController,
-                      \'Email\',
+                      'Email',
                       Icons.email,
                       false,
-                      key: const Key(\'emailField\'),
+                      key: const Key('emailField'),
                     ),
                     const SizedBox(height: 15),
 
@@ -75,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       builder: (context, value, child) {
                         return _buildTextField(
                           _passwordController,
-                          \'Password\',
+                          'Password',
                           Icons.lock,
                           !value,
                           suffixIcon: IconButton(
@@ -84,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _isPasswordVisible.value = !value;
                             },
                           ),
-                          key: const Key(\'passwordField\'),
+                          key: const Key('passwordField'),
                         );
                       },
                     ),
@@ -96,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()));
                         },
                         child: const Text(
-                          \'Forgot Password?\',
+                          'Forgot Password?',
                           style: TextStyle(fontSize: 12, color: Colors.blue),
                         ),
                       ),
@@ -109,10 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, \'/register\');
+                              Navigator.pushNamed(context, '/register');
                             },
                             child: const Text(
-                              \'Don\\\'t have an account? Create here\',
+                              "Don't have an account? Create here",
                               style: TextStyle(fontSize: 10, color: Colors.black),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -131,12 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: _isLoading ? null : _handleLogin,
                             child: _isLoading
                                 ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2),
-                            )
-                                : const Text(\'Login\', style: TextStyle(fontSize: 18)),
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
+                                : const Text('Login', style: TextStyle(fontSize: 18)),
                           ),
                         ),
                       ],
@@ -161,16 +157,16 @@ class _LoginScreenState extends State<LoginScreen> {
     if (email.isNotEmpty && password.isNotEmpty) {
       var userData = await _authService.logIn(email, password);
       if (userData != null) {
-        if (userData[\'role\'] == \'customer\') {
+        if (userData['role'] == 'customer') {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-        } else if (userData[\'role\'] == \'driver\') {
+        } else if (userData['role'] == 'driver') {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(\'Login failed\')),
+          const SnackBar(content: Text('Login failed')),
         );
       }
     }
@@ -180,13 +176,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Builds a custom text field widget
   Widget _buildTextField(
-      TextEditingController controller,
-      String label,
-      IconData icon,
-      bool obscureText, {
-        Widget? suffixIcon,
-        Key? key,
-      }) {
+    TextEditingController controller,
+    String label,
+    IconData icon,
+    bool obscureText, {
+    Widget? suffixIcon,
+    Key? key,
+  }) {
     return Container(
       key: key,
       decoration: BoxDecoration(
