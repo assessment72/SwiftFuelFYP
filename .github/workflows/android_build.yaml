@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -28,10 +25,15 @@ jobs:
         run: flutter build apk --release
         working-directory: fuel_delivery_app
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Set release tag
+        id: vars
+        run: echo "RELEASE_TAG=v1.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: app-release
-          path: fuel_delivery_app/build/app/outputs/flutter-apk/app-release.apk
-
-
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Release ${{ env.RELEASE_TAG }}
+          files: fuel_delivery_app/build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
