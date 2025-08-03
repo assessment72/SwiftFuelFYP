@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "com.fahad.fueldeliveryapp"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "26.3.11579264" // ✅ تم تحديثها لتجنب خطأ NDK mismatch
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -22,10 +22,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.fahad.fueldeliveryapp"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -34,9 +31,12 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+
+            // ✅ تم تفعيل minify مع إضافة ملف ProGuard
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -46,15 +46,12 @@ flutter {
 }
 
 dependencies {
-    // Import the Firebase BoM to manage Firebase SDK versions
+    // Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:33.4.0')
 
-    // Add the Firebase SDKs you want to use in your app
+    // Firebase SDKs
     implementation 'com.google.firebase:firebase-analytics'
 
-    // If you need other Firebase services, add them here:
-    // implementation 'com.google.firebase:firebase-auth'
-    // implementation 'com.google.firebase:firebase-firestore'
-
+    // Stripe SDK
     implementation 'com.stripe:stripe-android:20.0.0'
 }
