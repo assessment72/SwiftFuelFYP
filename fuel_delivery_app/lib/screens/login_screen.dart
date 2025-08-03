@@ -7,12 +7,12 @@
 
 
 
-import \'package:flutter/material.dart\';
-import \'../services/auth_service.dart\';
-import \'package:firebase_auth/firebase_auth.dart\';
-import \'package:fuel_delivery_app/screens/home_screen.dart\';
-import \'package:fuel_delivery_app/screens/delivery_dashboard.dart\';
-import \'package:fuel_delivery_app/screens/forget_password_screen.dart\'; // إضافة استيراد شاشة نسيان كلمة المرور
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fuel_delivery_app/screens/home_screen.dart';
+import 'package:fuel_delivery_app/screens/delivery_dashboard.dart';
+import 'package:fuel_delivery_app/screens/forget_password_screen.dart'; // إضافة استيراد شاشة نسيان كلمة المرور
 
 class LoginScreen extends StatefulWidget {
   @override
