@@ -97,7 +97,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     contentPadding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
                     leading: const CircleAvatar(
                       radius: 25,
-                      backgroundImage: AssetImage('assets/images/profile.jpg'),
+                      backgroundImage: AssetImage('assets/applogo.png'),
                     ),
                     title: const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
