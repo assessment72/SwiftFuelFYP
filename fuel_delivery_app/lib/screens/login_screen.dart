@@ -8,9 +8,11 @@ import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fuel_delivery_app/screens/home_screen.dart';
 import 'package:fuel_delivery_app/screens/delivery_dashboard.dart';
-import 'package:fuel_delivery_app/screens/forget_password_screen.dart'; // إضافة استيراد شاشة نسيان كلمة المرور
+import 'package:fuel_delivery_app/screens/forget_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key}); // ✅ تم إضافة const constructor
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -84,12 +86,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                     ),
-                    // زر نسيت كلمة المرور
+
+                    // Forgot Password Button
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgetPasswordScreen(),
+                            ),
+                          );
                         },
                         child: const Text(
                           'Forgot Password?',
@@ -130,7 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
-                                        color: Colors.white, strokeWidth: 2),
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text('Login', style: TextStyle(fontSize: 18)),
                           ),
@@ -159,10 +169,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (userData != null) {
         if (userData['role'] == 'customer') {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
         } else if (userData['role'] == 'driver') {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()));
+            context,
+            MaterialPageRoute(builder: (context) => const DeliveryDashboardScreen()),
+          );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
