@@ -1,11 +1,7 @@
-/// Author: Fahad Riaz
-/// Description: This file defines the NotificationsScreen for the SwiftFuel app.
-/// It displays a list of notifications with swipe actions for sharing and deleting.
-/// The screen includes a bottom navigation bar for seamless movement between major parts of the app.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -17,6 +13,30 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
+  final List<RemoteMessage> _messages = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ استقبال الإشعارات أثناء تشغيل التطبيق
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      setState(() {
+        _messages.insert(0, message); // إضافة الإشعار في بداية القائمة
+      });
+
+      // ✅ عرض Snackbar كمثال
+      if (message.notification != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${message.notification!.title ?? 'New Notification'}\n${message.notification!.body ?? ''}',
+            ),
+          ),
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -24,8 +44,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.dispose();
   }
 
-  void shareNotification() {
-    Share.share('Notification shared from SwiftFuel app.');
+  void shareNotification(String? content) {
+    if (content != null) {
+      Share.share(content);
+    }
   }
 
   @override
@@ -62,65 +84,64 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: ListView.separated(
-              itemCount: 10,
-              separatorBuilder: (context, index) => Divider(
-                color: Colors.grey[400],
-                indent: size.width * .08,
-                endIndent: size.width * .08,
-              ),
-              itemBuilder: (context, index) {
-                return Slidable(
-                  endActionPane: ActionPane(
-                    extentRatio: 0.3,
-                    motion: const ScrollMotion(),
-                    children: [
-                      SlidableAction(
-                        onPressed: (context) => shareNotification(),
-                        icon: Icons.share,
-                        backgroundColor: Colors.grey[300]!,
-                      ),
-                      SlidableAction(
-                        onPressed: (context) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Notification deleted')),
-                          );
-                        },
-                        icon: Icons.delete,
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.red[700]!,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    isThreeLine: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
-                    leading: const CircleAvatar(
-                      radius: 25,
-                      backgroundImage: AssetImage('assets/applogo.png'),
+            child: _messages.isEmpty
+                ? const Center(child: Text('No notifications yet.'))
+                : ListView.separated(
+                    itemCount: _messages.length,
+                    separatorBuilder: (context, index) => Divider(
+                      color: Colors.grey[400],
+                      indent: size.width * .08,
+                      endIndent: size.width * .08,
                     ),
-                    title: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Team',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return Slidable(
+                        endActionPane: ActionPane(
+                          extentRatio: 0.3,
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (context) =>
+                                  shareNotification(message.notification?.body),
+                              icon: Icons.share,
+                              backgroundColor: Colors.grey[300]!,
+                            ),
+                            SlidableAction(
+                              onPressed: (context) {
+                                setState(() {
+                                  _messages.removeAt(index);
+                                });
+                              },
+                              icon: Icons.delete,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.red[700]!,
+                            ),
+                          ],
                         ),
-                        Text(
-                          '2h Ago',
-                          style: TextStyle(fontSize: 12),
+                        child: ListTile(
+                          isThreeLine: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.08),
+                          leading: const CircleAvatar(
+                            radius: 25,
+                            backgroundImage:
+                                AssetImage('assets/applogo.png'),
+                          ),
+                          title: Text(
+                            message.notification?.title ?? 'No Title',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            message.notification?.body ??
+                                'No message content',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ],
-                    ),
-                    subtitle: const Text(
-                      'Please share the project update before Friday. The next meeting agenda will be based on it.',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -151,8 +172,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart), label: 'Orders'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle), label: 'Account'),
           ],
         );
       },
