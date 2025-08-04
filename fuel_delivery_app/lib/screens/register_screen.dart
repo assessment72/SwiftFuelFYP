@@ -4,10 +4,6 @@
 /// data is stored in Firebase Authentication and Firestore. The screen also includes
 /// input validation, password visibility toggle, redirection to login screen, and responsive UI.
 
-
-
-
-
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key}); // ✅ تم إضافة const constructor
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -127,11 +125,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onPressed: _isLoading ? null : _handleRegister,
                             child: _isLoading
                                 ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2),
-                            )
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
                                 : const Text('Register', style: TextStyle(fontSize: 18)),
                           ),
                         ),
@@ -183,16 +181,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      String label,
-      IconData icon,
-      bool obscureText, {
-        Widget? suffixIcon,
-        Key? key,
-        TextInputType keyboardType = TextInputType.text,
-        List<TextInputFormatter>? inputFormatters,
-        String prefixText = '',
-      }) {
+    TextEditingController controller,
+    String label,
+    IconData icon,
+    bool obscureText, {
+    Widget? suffixIcon,
+    Key? key,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    String prefixText = '',
+  }) {
     return Container(
       key: key,
       decoration: BoxDecoration(
